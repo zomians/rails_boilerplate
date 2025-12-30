@@ -23,7 +23,7 @@ rails_boilerplate への貢献ありがとうございます。このガイド�
 ### Issue テンプレート
 
 ```markdown
-## 概要
+## 📋 概要
 
 [1-2文で変更内容を簡潔に説明]
 
@@ -31,7 +31,7 @@ rails_boilerplate への貢献ありがとうございます。このガイド�
 
 ---
 
-## 背景・課題
+## 🎯 背景・課題
 
 ### 現状の問題
 - [現在どのような問題があるか]
@@ -44,7 +44,7 @@ rails_boilerplate への貢献ありがとうございます。このガイド�
 
 ---
 
-## 目的・ゴール
+## 🎯 目的・ゴール
 
 ### 主目的
 [この変更で達成したいこと]
@@ -55,7 +55,7 @@ rails_boilerplate への貢献ありがとうございます。このガイド�
 
 ---
 
-## 要件定義
+## 📖 要件定義
 
 ### 機能要件
 
@@ -80,7 +80,7 @@ rails_boilerplate への貢献ありがとうございます。このガイド�
 
 ---
 
-## 技術仕様
+## 🛠️ 技術仕様
 
 ### アーキテクチャ
 
@@ -92,7 +92,7 @@ rails_boilerplate への貢献ありがとうございます。このガイド�
 
 ---
 
-## 受け入れ基準
+## ✅ 受け入れ基準
 
 ### Must Have
 - [ ] [必須要件1]
@@ -108,7 +108,7 @@ rails_boilerplate への貢献ありがとうございます。このガイド�
 
 ---
 
-## 工数見積
+## ⏱️ 工数見積
 
 ### タスク分解
 
@@ -123,7 +123,7 @@ rails_boilerplate への貢献ありがとうございます。このガイド�
 
 ---
 
-## テスト計画
+## 🧪 テスト計画
 
 ### テストケース
 
@@ -141,19 +141,19 @@ rails_boilerplate への貢献ありがとうございます。このガイド�
 
 ---
 
-## 次のステップ
+## 📈 次のステップ
 
 [この機能完了後の展開、将来の拡張など]
 
 ---
 
-## 関連資料
+## 📚 関連資料
 
 - [関連ドキュメント、外部リンクなど]
 
 ---
 
-## Definition of Done
+## ✅ Definition of Done
 
 - [ ] [完了条件1]
 - [ ] [完了条件2]
@@ -170,16 +170,102 @@ rails_boilerplate への貢献ありがとうございます。このガイド�
 依存関係: [依存するIssueや前提条件]
 ```
 
+### 工数見積ガイドライン
+
+#### タスク分解の基本
+
+| タスク | 内容 | 一般的な割合 |
+|--------|------|------------|
+| **設計** | 技術仕様の詳細化、アーキテクチャ検討 | 15-20% |
+| **実装** | コーディング、デバッグ | 40-50% |
+| **テスト** | テストコード作成、動作確認 | 20-25% |
+| **ドキュメント更新** | README、CONTRIBUTING等の更新 | 10-15% |
+
+#### 見積単位
+
+- **時間単位**: 0.5時間刻み
+- **営業日換算**: 1営業日 = 8時間
+- **最小単位**: 0.5時間
+- **最大単位**: 16時間（2営業日）
+
+💡 **推奨**: 16時間を超える場合は、タスクを分割してください。
+
+#### 確実性レベル
+
+| レベル | 説明 | バッファ | 例 |
+|--------|------|---------|-----|
+| **高確実性** | 過去に類似実装あり、よく知っている技術 | +10% | CRUDの追加、既存機能の微修正 |
+| **中確実性** | 一般的な実装パターン、ある程度経験あり | +25% | 新しいAPIエンドポイント、標準的なリファクタリング |
+| **低確実性** | 初めての技術、複雑な仕様 | +50% | 新しいフレームワーク導入、複雑なアルゴリズム実装 |
+
+#### 見積例
+
+##### 難易度: Low（簡単な修正・追加）
+- 例: 既存画面へのフィールド追加、軽微なバグ修正
+- 見積: 2-4時間（0.25-0.5営業日）
+- 内訳:
+  - 設計: 0.5h
+  - 実装: 1.5h
+  - テスト: 0.5h
+  - ドキュメント: 0.5h
+
+##### 難易度: Medium（通常の機能開発）
+- 例: 新しいCRUD機能、APIエンドポイント追加
+- 見積: 8-16時間（1-2営業日）
+- 内訳:
+  - 設計: 2h
+  - 実装: 6h
+  - テスト: 3h
+  - ドキュメント: 1h
+
+##### 難易度: High（複雑な機能・新技術導入）
+- 例: 認証システム実装、外部サービス統合
+- 見積: 24-40時間（3-5営業日）
+- 内訳:
+  - 設計: 6h
+  - 実装: 18h
+  - テスト: 10h
+  - ドキュメント: 2h
+
+#### バッファの考え方
+
+**基本ルール**: 見積工数に確実性レベルに応じたバッファを追加
+
+例: 実装8時間、確実性レベル「中」の場合
+```
+基本見積: 8h
+バッファ: 8h × 25% = 2h
+最終見積: 10h
+```
+
+💡 **推奨**: 全体に+25%のバッファを追加することで、予期せぬ問題に対応できます。
+
+#### 優先度と難易度の定義
+
+| 優先度 | 説明 | 対応期限の目安 |
+|--------|------|---------------|
+| **High** | ビジネスクリティカル、ブロッカー | 即座に着手 |
+| **Medium** | 重要だが緊急ではない | 1-2週間以内 |
+| **Low** | あると便利、改善項目 | 時間があるとき |
+
+| 難易度 | 説明 | 見積工数目安 |
+|--------|------|-------------|
+| **Low** | 簡単な修正、既知の実装パターン | 2-4時間 |
+| **Medium** | 通常の機能開発、一般的な複雑さ | 8-16時間 |
+| **High** | 複雑な実装、新技術、大規模変更 | 24時間以上 |
+
 ---
 
 ## 開発環境セットアップ
 
 ### 必要なツール
 
-- Docker (20.10+)
-- Docker Compose (2.0+)
-- Git (2.30+)
-- Make (任意)
+| ツール | 必須/任意 | 推奨バージョン | 用途 |
+|--------|----------|--------------|------|
+| Docker | 必須 | 20.10+ | コンテナ実行環境 |
+| Docker Compose | 必須 | 2.0+ | 複数コンテナの管理 |
+| Git | 必須 | 2.30+ | バージョン管理 |
+| Make | 任意 | - | コマンド簡略化 |
 
 ### セットアップ手順
 
@@ -217,40 +303,122 @@ docker compose ps
 
 このプロジェクトは GitHub Flow を採用します。
 
-### 重要な原則
+### 🚨 重要な原則：ブランチを作ってから作業する
 
-- main ブランチへ直接コミットしない
-- Issue 作成 -> ブランチ作成 -> 実装の順序を守る
+**作業を開始する前に、必ず以下の手順を守ってください：**
+
+#### ❌ BAD: main ブランチで直接作業
+
+```bash
+# これは絶対にやってはいけません！
+git checkout main
+# main ブランチで直接ファイルを編集...
+git add .
+git commit -m "fix: 修正"
+git push origin main  # ❌ main へ直接プッシュ
+```
+
+#### ✅ GOOD: 正しい手順
+
+```bash
+# 1. Issue を作成（例: Issue #42 を作成）
+
+# 2. main ブランチを最新化
+git checkout main
+git pull origin main
+
+# 3. 作業用ブランチを作成
+git checkout -b feature/42-new-feature
+
+# 4. 実装作業
+# ファイルを編集...
+
+# 5. コミット
+git add .
+git commit -m "feat: 新機能を追加 (issue#42)"
+
+# 6. プッシュ
+git push origin feature/42-new-feature
+
+# 7. GitHub で PR を作成
+```
+
+#### ⚠️ 間違いに気づいた場合
+
+**main ブランチで作業してしまった場合：**
+
+```bash
+# 方法1: 変更をまだコミットしていない場合
+git stash                              # 変更を一時保存
+git checkout -b feature/XX-fix         # 正しいブランチを作成
+git stash pop                          # 変更を適用
+
+# 方法2: すでにコミットしてしまった場合（プッシュ前）
+git branch feature/XX-fix              # 現在の状態で新ブランチ作成
+git reset --hard origin/main           # main を元に戻す
+git checkout feature/XX-fix            # 新ブランチに切り替え
+```
+
+**main ブランチにプッシュしてしまった場合：**
+
+すぐにチームに報告してください。revert が必要になる場合があります。
+
+#### なぜこれが重要か？
+
+1. **main ブランチの保護**
+   - main は常に安定した状態を保つ必要があります
+   - CI/CDで自動デプロイされる可能性があります
+
+2. **変更の追跡**
+   - PR を通じてコードレビューが可能になります
+   - 変更履歴が明確になります
+
+3. **ロールバック**
+   - 問題があった場合、簡単に元に戻せます
+   - main ブランチは影響を受けません
+
+4. **並行作業**
+   - 複数の機能を同時に開発できます
+   - 他のメンバーの作業と競合しません
 
 ### ブランチ命名規則
 
+**フォーマット:**
 ```
 <type>/<issue番号>-<機能名>
 ```
 
-Type 一覧:
+**Type 一覧:**
 
-- feature/ - 新機能
-- bugfix/ - バグ修正
-- hotfix/ - 緊急修正
-- refactor/ - リファクタリング
-- docs/ - ドキュメント
+| Type | 用途 | 例 |
+|------|------|-----|
+| `feature/` | 新機能の追加 | `feature/57-user-authentication` |
+| `bugfix/` | バグ修正 | `bugfix/58-fix-cart-calculation` |
+| `hotfix/` | 緊急修正（本番環境の問題） | `hotfix/59-critical-security-fix` |
+| `refactor/` | リファクタリング | `refactor/60-optimize-queries` |
+| `docs/` | ドキュメント更新 | `docs/61-update-readme` |
 
-例:
-
+**良い例:**
+```bash
+feature/42-add-user-profile
+bugfix/43-fix-login-error
+docs/44-update-contributing
 ```
-feature/57-documentation-system
-bugfix/58-fix-cart-calculation
-docs/61-update-readme
+
+**悪い例:**
+```bash
+fix-bug              # ❌ Issue番号がない
+feature-new          # ❌ 具体的な機能名がない
+update               # ❌ typeとIssue番号がない
 ```
 
 ---
 
 ## コミット規約
 
-Conventional Commits に準拠します。
+[Conventional Commits](https://www.conventionalcommits.org/) に準拠します。
 
-フォーマット:
+**フォーマット:**
 
 ```
 <type>(<scope>): <subject> (issue#<番号>)
@@ -259,24 +427,69 @@ Conventional Commits に準拠します。
 <footer>（任意）
 ```
 
-Type 一覧:
+**Type 一覧:**
 
-- feat: 新機能
-- fix: バグ修正
-- docs: ドキュメント
-- refactor: リファクタリング
-- test: テスト追加・修正
-- chore: ビルド・ツール設定
-- perf: パフォーマンス改善
-- style: コードスタイル
+| Type | 用途 | 例 |
+|------|------|-----|
+| `feat` | 新機能の追加 | `feat(auth): ログイン機能を追加` |
+| `fix` | バグ修正 | `fix(cart): 合計金額の計算を修正` |
+| `docs` | ドキュメントのみの変更 | `docs: READMEを更新` |
+| `refactor` | リファクタリング（機能変更なし） | `refactor(user): サービスクラスに抽出` |
+| `test` | テストの追加・修正 | `test(user): バリデーションテストを追加` |
+| `chore` | ビルド・ツール・依存関係の変更 | `chore: Gemfile更新` |
+| `perf` | パフォーマンス改善 | `perf(query): N+1問題を解消` |
+| `style` | コードスタイルの変更（機能に影響なし） | `style: インデント修正` |
 
-良い例:
+**Scope（任意）:**
 
-```
+| Scope | 説明 |
+|-------|------|
+| `app` | アプリケーション全般 |
+| `auth` | 認証関連 |
+| `api` | API関連 |
+| `db` | データベース関連 |
+| `docker` | Docker設定 |
+
+**良い例:**
+
+```bash
 feat(app): ユーザー一覧画面を追加 (issue#12)
-fix(app): バリデーションを修正 (issue#34)
+fix(auth): バリデーションエラーを修正 (issue#34)
 docs: CONTRIBUTING.mdを追加 (issue#1)
+refactor(user): サービスオブジェクトに抽出 (issue#45)
 ```
+
+**悪い例:**
+
+```bash
+update code          # ❌ typeがない、issue番号がない
+fix bug              # ❌ 具体的な内容がない、issue番号がない
+feat: 機能追加       # ❌ 具体的な内容がない、issue番号がない
+```
+
+### ❌ 禁止事項：AI生成メッセージの追加
+
+**コミットメッセージには、AI（Claude Code、GitHub Copilot、Cursorなど）が生成したことを示すメッセージを追加しないでください。**
+
+**禁止例:**
+
+```bash
+# ❌ これらのメッセージを追加してはいけません
+feat(app): 新機能を追加 (issue#12)
+
+🤖 Generated with Claude Code
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
+
+# ❌ これも禁止
+fix(auth): ログイン修正 (issue#34)
+
+Generated by GitHub Copilot
+```
+
+**理由:**
+- コミット履歴はコードの変更内容を追跡するものであり、使用したツールを記録する場所ではありません
+- 将来的にツールの記載が不要になった場合、履歴の一貫性が失われます
+- AIツールはあくまで開発支援ツールであり、成果物の品質は開発者の責任です
 
 ---
 
@@ -304,9 +517,7 @@ git push origin feature/12-xxx
 
 ## テスト方法
 
-```bash
-[動作確認手順]
-```
+[動作確認手順をbashコマンドで記載]
 
 ## チェックリスト
 
@@ -315,7 +526,64 @@ git push origin feature/12-xxx
 - [ ] ドキュメント更新
 
 Closes #XX
+
 ```
+
+### ❌ 禁止事項：AI生成メッセージの追加
+
+**PRの説明文には、AI（Claude Code、GitHub Copilot、Cursorなど）が生成したことを示すメッセージを追加しないでください。**
+
+**禁止例:**
+
+```markdown
+Closes #12
+
+🤖 Generated with Claude Code  # ❌
+Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>  # ❌
+Generated by GitHub Copilot  # ❌
+```
+
+**理由:**
+- PRは変更内容とその理由を説明するものであり、使用したツールを宣伝する場所ではありません
+- プロジェクトの履歴として残る情報は、技術的な内容に限定すべきです
+- AIツールの利用は個人の選択であり、プロジェクト全体に影響を与えるべきではありません
+
+### 3. マージ戦略：Squash and Merge 推奨
+
+このプロジェクトでは **Squash and Merge** を推奨します。
+
+#### メリット
+
+1. **綺麗な履歴**
+   - main ブランチに `1 PR = 1 コミット` として記録
+   - WIPコミットや修正コミットが残らない
+   - 履歴が読みやすく、理解しやすい
+
+2. **Conventional Commits との相性**
+   - PR タイトルがそのままコミットメッセージになる
+   - 統一されたフォーマットが維持される
+
+3. **Revert が簡単**
+   - 機能単位で1コミットなので、revert が容易
+   - 影響範囲が明確
+
+#### マージ戦略の比較
+
+| 戦略 | メリット | デメリット | 推奨度 |
+|------|---------|-----------|-------|
+| **Squash and Merge** | 綺麗な履歴、1PR=1コミット | 個別コミットの履歴が消える | ⭐⭐⭐ 推奨 |
+| Merge commit | 完全な履歴保持 | マージコミットで履歴が複雑 | ⭐ 特殊なケースのみ |
+| Rebase and merge | リニアな履歴 | コンフリクト解決が複雑 | ⭐⭐ 小規模変更 |
+
+#### 使い方
+
+GitHub の PR 画面で「Squash and merge」を選択してください。
+
+```
+Squash and merge ▼
+```
+
+デフォルトで Squash and Merge が選択されるように設定することを推奨します。
 
 ---
 
@@ -367,12 +635,123 @@ rails generate rspec:install
 
 ## コードレビュー基準
 
-- Issue の要件を満たしているか
-- テストが十分か
-- 命名が適切か
-- パフォーマンス上の問題（N+1など）がないか
-- セキュリティ上の懸念がないか
-- マイグレーションはロールバック可能か
+### 基本チェック項目
+
+- [ ] Issue の要件を満たしているか
+- [ ] テストが十分か
+- [ ] 命名が適切か
+- [ ] パフォーマンス上の問題（N+1など）がないか
+- [ ] セキュリティ上の懸念がないか
+- [ ] マイグレーションはロールバック可能か
+
+### セキュリティチェック
+
+#### 1. SQLインジェクション対策
+
+**✅ DO: プレースホルダーを使う**
+```ruby
+# 良い例
+User.where("email = ?", params[:email])
+User.where(email: params[:email])
+```
+
+**❌ DON'T: 直接文字列を埋め込まない**
+```ruby
+# 悪い例 - SQLインジェクションの危険
+User.where("email = '#{params[:email]}'")
+```
+
+#### 2. XSS（クロスサイトスクリプティング）対策
+
+**✅ DO: ERBの自動エスケープを活用**
+```erb
+<!-- 良い例 - 自動的にエスケープされる -->
+<p><%= @user.name %></p>
+<p><%= sanitize @user.bio %></p>
+```
+
+**❌ DON'T: html_safe を安易に使わない**
+```erb
+<!-- 悪い例 - XSSの危険 -->
+<p><%= @user.name.html_safe %></p>
+<%= raw @user.bio %>
+```
+
+#### 3. CSRF（クロスサイトリクエストフォージェリ）対策
+
+**✅ DO: Railsのデフォルト設定を維持**
+```ruby
+# 良い例 - ApplicationController
+class ApplicationController < ActionController::Base
+  protect_from_forgery with: :exception
+end
+```
+
+**❌ DON'T: CSRF保護を無効化しない**
+```ruby
+# 悪い例
+class ApplicationController < ActionController::Base
+  skip_before_action :verify_authenticity_token  # ❌
+end
+```
+
+#### 4. マスアサインメント対策
+
+**✅ DO: Strong Parameters を使う**
+```ruby
+# 良い例
+def user_params
+  params.require(:user).permit(:name, :email)
+end
+
+def create
+  @user = User.new(user_params)
+end
+```
+
+**❌ DON'T: params を直接渡さない**
+```ruby
+# 悪い例 - 意図しない属性の更新が可能
+def create
+  @user = User.new(params[:user])  # ❌
+end
+```
+
+#### 5. 機密情報の保護
+
+**✅ DO: 環境変数を使う**
+```ruby
+# 良い例
+api_key = ENV['API_KEY']
+database_url = ENV['DATABASE_URL']
+```
+
+**❌ DON'T: ハードコードしない**
+```ruby
+# 悪い例
+api_key = "sk_live_abc123xyz"  # ❌
+DATABASE_URL = "postgresql://user:pass@host/db"  # ❌
+```
+
+#### 6. 認可チェック
+
+**✅ DO: 権限チェックを実装**
+```ruby
+# 良い例
+def update
+  @post = current_user.posts.find(params[:id])  # 自分の投稿のみ
+  @post.update(post_params)
+end
+```
+
+**❌ DON'T: IDだけで検索しない**
+```ruby
+# 悪い例 - 他人の投稿も更新できてしまう
+def update
+  @post = Post.find(params[:id])  # ❌
+  @post.update(post_params)
+end
+```
 
 ---
 
