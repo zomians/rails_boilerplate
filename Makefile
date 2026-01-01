@@ -10,6 +10,12 @@ help: ## ヘルプを表示
 init: ## Rails new を実行（初回のみ）
 	docker compose --env-file .env run --rm --workdir /app app rails new . --name ${APP_NAME} --database=postgresql --css=tailwind --javascript=importmap --skip-test --force
 	@echo "Rails アプリケーションを作成しました"
+	@if [ -f Procfile.dev ]; then \
+		if ! grep -q "\-b 0.0.0.0" Procfile.dev; then \
+			perl -i -pe 's/bin\/rails server/bin\/rails server -b 0.0.0.0/' Procfile.dev; \
+			echo "Procfile.dev を Docker 環境用に編集しました"; \
+		fi \
+	fi
 
 .PHONY: up
 up: ## コンテナを起動
