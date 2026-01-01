@@ -22,5 +22,5 @@ bash: ## app コンテナに入る
 
 .PHONY: clean
 clean: ## Docker関連を全てクリーン（全プロジェクト対象）
-	@if [ -n "$$(docker ps -q)" ]; then docker stop $$(docker ps -q); fi
-	docker system prune -a --volumes --force
+	docker compose down -v --rmi all
+	docker system prune -a --force
