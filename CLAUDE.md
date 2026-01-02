@@ -9,9 +9,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a **Rails boilerplate** project using Docker for containerized development. The project is designed to quickly bootstrap new Rails applications with a standardized setup.
 
 **Key Technologies:**
-- Ruby (version configurable in `.env`)
-- Rails (version configurable in `.env`)
-- PostgreSQL (version configurable in `.env`)
+- Ruby (version configurable in `.env.development`)
+- Rails (version configurable in `.env.development`)
+- PostgreSQL (version configurable in `.env.development`)
 - Docker & Docker Compose
 - Tailwind CSS
 - Import maps
@@ -70,17 +70,17 @@ rails server
 
 ```bash
 # View running containers
-docker compose ps
+docker compose --env-file .env.development ps
 
 # View logs
-docker compose logs app
-docker compose logs db
+docker compose --env-file .env.development logs app
+docker compose --env-file .env.development logs db
 
 # Stop containers
-docker compose down
+docker compose --env-file .env.development down
 
 # Rebuild containers (after changing Dockerfile or dependencies)
-docker compose build --no-cache
+docker compose --env-file .env.development build --no-cache
 
 # Clean all Docker resources (WARNING: affects ALL Docker projects)
 make clean
@@ -109,20 +109,46 @@ The project uses a **multi-container Docker setup**:
 
 ### Configuration
 
-All versions and settings are configurable via `.env`:
+#### Environment Variables
+
+**ファイル構成:**
+- `.env.development`: 開発環境用の設定（リポジトリにコミット、サンプル値含む）
+- `.env.production`: compose.production.yaml想定の本番環境用設定（リポジトリにコミット、サンプル値含む）
+
+**設計方針:**
+- `.env` ファイルは使用しない
+- `--env-file` オプションで環境ファイルを明示的に指定
+- 開発環境: `docker compose --env-file .env.development`
+- 本番環境: `docker compose -f compose.production.yaml --env-file .env.production`
+
+**メリット:**
+- 環境ファイルのコピー不要
+- 使用する環境が明示的
+- `.gitignore` の設定不要
+- セキュリティ向上（間違って機密情報をコミットするリスク低減）
+
+**環境変数一覧:**
 - `RUBY_VERSION`: Ruby version (default: 3.3.6)
 - `RAILS_VERSION`: Rails version (default: 8.0.4)
 - `POSTGRES_VERSION`: PostgreSQL version (default: 16-bookworm)
 - `APP_NAME`: Application name
-- Database credentials (POSTGRES_USER, POSTGRES_PASSWORD, etc.)
+- `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: Database credentials
+- `DATABASE_URL`: PostgreSQL connection URL (auto-generated)
+
+**本番環境用追加環境変数:**
+- `SECRET_KEY_BASE`: Rails secret key
+- `RAILS_ENV=production`
+- `RAILS_LOG_TO_STDOUT=true`
+- `RAILS_SERVE_STATIC_FILES=true`
 
 ### Project Structure
 
 ```
 .
-├── .env                 # Environment variables (versions, DB config)
-├── compose.yaml         # Docker Compose configuration
-├── Dockerfile.app       # App container definition
+├── .env.development     # Development environment variables (committed)
+├── .env.production      # Production environment variables template (committed)
+├── compose.yaml         # Docker Compose configuration for development
+├── Dockerfile.app       # App container definition (multi-stage)
 ├── Makefile            # Development shortcuts
 ├── CONTRIBUTING.md     # Development guidelines and workflow
 └── CLAUDE.md           # This file
@@ -203,12 +229,12 @@ Always verify security requirements from CONTRIBUTING.md:
 
 ```bash
 # Clean restart
-docker compose down -v
-docker compose up -d
+docker compose --env-file .env.development down -v
+docker compose --env-file .env.development up -d
 
 # Rebuild from scratch
-docker compose build --no-cache
-docker compose up -d
+docker compose --env-file .env.development build --no-cache
+docker compose --env-file .env.development up -d
 ```
 
 ### Database Issues
@@ -236,7 +262,8 @@ sudo chown -R $(id -u):$(id -g) .
 ## Important Notes
 
 1. **First-time setup**: Run `make init` only once to create the Rails application
-2. **Environment configuration**: Edit `.env` to change Ruby/Rails/PostgreSQL versions
+2. **Environment configuration**: Edit `.env.development` or `.env.production` to change settings
 3. **Volume persistence**: Gems and database data persist across container restarts
 4. **Port conflicts**: Ensure ports 3000 and 5432 are available
 5. **Make commands**: Run `make help` to see all available commands
+6. **Environment files**: Use `--env-file` to explicitly specify which environment to use
