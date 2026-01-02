@@ -2,7 +2,7 @@ services:
   db:
     image: postgres:${POSTGRES_VERSION}
     env_file:
-      - .env
+      - .env.development
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
@@ -28,7 +28,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - .env
+      - .env.development
     depends_on:
       db:
         condition: service_healthy
