@@ -136,7 +136,7 @@ The project uses a **multi-container Docker setup**:
 - `DATABASE_URL`: PostgreSQL connection URL (auto-generated)
 
 **本番環境用追加環境変数:**
-- `SECRET_KEY_BASE`: Rails secret key (generate with `bundle exec rails secret`)
+- `SECRET_KEY_BASE`: Rails secret key
 - `RAILS_ENV=production`
 - `RAILS_LOG_TO_STDOUT=true`
 - `RAILS_SERVE_STATIC_FILES=true`
