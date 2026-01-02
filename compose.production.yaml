@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:${POSTGRES_VERSION}
+    env_file:
+      - .env.production
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+      target: production
+      args:
+        RUBY_VERSION: ${RUBY_VERSION}
+        RAILS_VERSION: ${RAILS_VERSION}
+    env_file:
+      - .env.production
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
