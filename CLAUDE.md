@@ -25,11 +25,31 @@ All commands should be run from the repository root.
 ### Initial Setup (First Time Only)
 
 ```bash
-# Create a new Rails application
+# Create a new Rails application with essential gems
 make init
 
 # Start containers
 make up
+```
+
+**Note**: `make init` automatically sets up the following gems:
+- **Development**: pry-rails (debugging REPL)
+- **Testing**: rspec-rails, factory_bot_rails, faker
+- **Code Quality**: rubocop, rubocop-rails
+
+### Solidus (E-Commerce Platform) Setup
+
+If you want to build an e-commerce site with Solidus:
+
+```bash
+# After make init, run:
+make setup-solidus
+
+# Start containers
+make up
+
+# Access Solidus admin panel at http://localhost:3000/admin
+# Default login: admin@example.com / test123
 ```
 
 ### Development Workflow
