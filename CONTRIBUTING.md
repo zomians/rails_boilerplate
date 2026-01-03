@@ -275,26 +275,188 @@ git clone <your-repo-url>
 cd rails_boilerplate
 
 # 環境変数の確認・調整
-# .env を編集して Ruby/Rails/Postgres バージョンやDB設定を変更できます
+# .env.development を編集して Ruby/Rails/Postgres バージョンやDB設定を変更できます
+# 本番環境は .env.production を使用します
 
 # 初回のみ: Rails アプリケーションを作成
 make init
 
 # コンテナ起動
-docker compose up -d
-
-# Makefile を使う場合
-# make up
+make up
 ```
 
 ### よく使うコマンド
 
+#### 開発環境
+
 ```bash
+# コンテナ起動
+make up
+
 # app コンテナに入る
 make bash
 
 # サービス状態確認
-docker compose ps
+docker compose --env-file .env.development ps
+
+# 利用可能なコマンド一覧を表示
+make help
+```
+
+#### 本番環境
+
+```bash
+# 本番環境を起動
+make prod-up
+
+# 本番環境を停止
+make prod-down
+
+# 本番環境のログを表示
+make prod-logs
+
+# 本番環境のappコンテナに入る
+make prod-bash
+
+# 本番環境のコンテナ状態を表示
+make prod-ps
+
+# その他の本番環境コマンド
+make help  # 全コマンド確認
+```
+
+### 環境変数管理
+
+このプロジェクトでは、環境ごとに異なる環境変数ファイルを使用します。
+
+**ファイル構成:**
+- `.env.development`: 開発環境用（リポジトリにコミット済み、サンプル値含む）
+- `.env.production`: 本番環境用（リポジトリにコミット済み、サンプル値含む）
+
+**設計方針:**
+- `.env` ファイルは使用しない
+- `--env-file` オプションで環境ファイルを明示的に指定
+- Makefile の `include` は使用しない（環境変数の競合を防ぐため）
+
+**メリット:**
+- 使用する環境が明示的で、誤った環境での実行を防げる
+- 環境ファイルのコピー不要
+- 開発環境と本番環境の設定が混在しない
+
+**重要:** 本番環境では `.env.production` の以下の値を必ず変更してください：
+- `SECRET_KEY_BASE`
+- `POSTGRES_PASSWORD`
+
+---
+
+## 本番環境デプロイ
+
+このプロジェクトは Docker Compose を使用した本番環境デプロイをサポートしています。
+
+### 構成ファイル
+
+| ファイル | 用途 |
+|---------|------|
+| `compose.production.yaml` | 本番環境用 Docker Compose 設定 |
+| `.env.production` | 本番環境用環境変数（SECRET_KEY_BASE等を要変更） |
+| `Dockerfile.app` | 本番ステージを含むマルチステージビルド |
+
+### VPSへのデプロイ手順
+
+#### 1. VPS上での初回セットアップ
+
+```bash
+# VPSにSSH接続
+ssh user@your-vps-ip
+
+# リポジトリをclone
+git clone https://github.com/zomians/rails_boilerplate.git
+cd rails_boilerplate
+
+# .env.productionを編集（SECRET_KEY_BASE等を設定）
+vi .env.production
+```
+
+**必須設定項目:**
+- `SECRET_KEY_BASE`: `docker compose -f compose.production.yaml run --rm app bundle exec rails secret` で生成
+- `POSTGRES_PASSWORD`: ランダムな強力なパスワードに変更
+
+#### 2. 本番環境の起動
+
+```bash
+# イメージをビルド
+make prod-build
+
+# 本番環境を起動
+make prod-up
+
+# データベースをセットアップ
+make prod-db-setup
+```
+
+#### 3. 確認
+
+アプリケーション: `http://your-vps-ip:3000`
+
+### 更新デプロイ
+
+コードを更新した場合の手順：
+
+```bash
+# VPS上で
+git pull origin main
+
+# イメージを再ビルド
+make prod-build
+
+# 本番環境を再起動
+make prod-restart
+```
+
+### 本番環境の操作コマンド
+
+Makefile に以下のコマンドが用意されています：
+
+| コマンド | 説明 |
+|---------|------|
+| `make prod-up` | 本番環境を起動 |
+| `make prod-down` | 本番環境を停止 |
+| `make prod-build` | 本番環境のイメージをビルド |
+| `make prod-restart` | 本番環境を再起動 |
+| `make prod-logs` | ログを表示 |
+| `make prod-bash` | appコンテナに入る |
+| `make prod-ps` | コンテナ状態を表示 |
+| `make prod-db-setup` | データベースをセットアップ |
+| `make prod-db-reset` | データベースをリセット（要確認） |
+
+**注意:** `make prod-db-reset` は全データを削除するため、実行時に確認が求められます。
+
+### トラブルシューティング
+
+#### コンテナが起動しない
+
+```bash
+# ログを確認
+make prod-logs
+
+# コンテナ状態を確認
+make prod-ps
+
+# クリーンアップして再起動
+make prod-down
+make prod-build
+make prod-up
+```
+
+#### データベース接続エラー
+
+```bash
+# データベースコンテナの状態を確認
+make prod-ps
+
+# データベースを再セットアップ
+make prod-db-reset  # 注意: 全データ削除
+make prod-db-setup
 ```
 
 ---
