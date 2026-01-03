@@ -4,7 +4,7 @@ help: ## ヘルプを表示
 
 .PHONY: init
 init: ## Rails new を実行（初回のみ）
-	@set -a && . .env.development && set +a && \
+	@set -a && . ./.env.development && set +a && \
 	docker compose --env-file .env.development run --rm --workdir /app app \
 	rails new . --name $$APP_NAME --database=postgresql --css=tailwind --javascript=importmap --skip-test --force
 	@echo "✅ Rails アプリケーションを作成しました"
@@ -25,9 +25,8 @@ bash: ## app コンテナに入る
 	docker compose --env-file .env.development exec app bash
 
 .PHONY: clean
-clean: ## Docker関連を全てクリーン（全プロジェクト対象）
-	docker compose --env-file .env.development down -v --rmi all
-	docker system prune -a --force
+clean: ## このプロジェクトのDocker関連をクリーン（公式イメージは保持）
+	docker compose --env-file .env.development down -v --rmi local
 
 # ==============================================
 # 本番環境用コマンド
