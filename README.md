@@ -45,8 +45,6 @@ make bash   # コンテナに入る
 - `SECRET_KEY_BASE`
 - `POSTGRES_PASSWORD`
 
-詳細は [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。
-
 ## 詳細ドキュメント
 
 - [CONTRIBUTING.md](CONTRIBUTING.md) - 開発ガイドライン・ワークフロー
