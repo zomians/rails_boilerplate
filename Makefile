@@ -14,6 +14,18 @@ init: ## Rails new を実行（初回のみ）
 			echo "✅ Procfile.dev を Docker 環境用に編集しました"; \
 		fi \
 	fi
+	@echo "📦 定番gemを追加します..."
+	docker compose --env-file .env.development run --rm --workdir /app app bundle add pry-rails --group development
+	docker compose --env-file .env.development run --rm --workdir /app app bundle add rspec-rails factory_bot_rails faker --group development,test
+	docker compose --env-file .env.development run --rm --workdir /app app bundle add rubocop rubocop-rails --group development,test --require false
+	@echo "✅ 定番gemを追加しました"
+	docker compose --env-file .env.development run --rm --workdir /app app rails generate rspec:install
+	@echo "✅ RSpecをセットアップしました"
+	@if [ -f templates/.rubocop.yml ]; then \
+		cp templates/.rubocop.yml .rubocop.yml; \
+		echo "✅ Rubocop設定をコピーしました"; \
+	fi
+	@echo "🎉 セットアップ完了！"
 
 .PHONY: up
 up: ## コンテナを起動
@@ -74,3 +86,26 @@ prod-restart: ## 本番環境を再起動
 .PHONY: prod-ps
 prod-ps: ## 本番環境のコンテナ状態を表示
 	docker compose -f compose.production.yaml --env-file .env.production ps
+
+# ==============================================
+# Solidus セットアップ
+# ==============================================
+
+.PHONY: setup-solidus
+setup-solidus: ## Solidus（ECプラットフォーム）をセットアップ
+	@echo "📦 Solidusをセットアップします..."
+	docker compose --env-file .env.development run --rm --workdir /app app bundle add solidus solidus_auth_devise
+	docker compose --env-file .env.development run --rm --workdir /app app bundle add solidus_support canonical-rails
+	@echo "✅ Solidus gemを追加しました"
+	docker compose --env-file .env.development run --rm --workdir /app app rails generate solidus:install --auto-accept
+	@echo "✅ Solidusをインストールしました"
+	docker compose --env-file .env.development run --rm --workdir /app app rails db:migrate
+	@echo "✅ データベースをマイグレーションしました"
+	@read -p "サンプルデータをロードしますか？ [y/N]: " ans; \
+	if [ "$$ans" = "y" ] || [ "$$ans" = "Y" ]; then \
+		docker compose --env-file .env.development run --rm --workdir /app app rails db:seed; \
+		echo "✅ サンプルデータをロードしました"; \
+	fi
+	@echo "🎉 Solidusのセットアップ完了！"
+	@echo "管理画面: http://localhost:3000/admin"
+	@echo "デフォルトログイン: admin@example.com / test123"
