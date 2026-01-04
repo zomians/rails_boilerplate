@@ -26,10 +26,14 @@ make up
 
 アプリケーション: http://localhost:3000
 
+**`make init` で自動追加される定番gem:**
+- pry-rails, rspec-rails, factory_bot_rails, faker, rubocop, rubocop-rails
+
 **よく使うコマンド:**
 ```bash
-make help   # 利用可能なコマンド一覧
-make bash   # コンテナに入る
+make help            # 利用可能なコマンド一覧
+make bash            # コンテナに入る
+make setup-solidus   # Solidus（ECプラットフォーム）をセットアップ
 ```
 
 ## 環境変数
