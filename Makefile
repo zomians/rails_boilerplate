@@ -12,7 +12,7 @@ init: ## 定番gemを含むRailsアプリケーションを作成（通常開発
 	@echo "⚙️  Procfile.devをDocker環境用に調整します..."
 	@if [ -f Procfile.dev ]; then \
 		if ! grep -q "\-b 0.0.0.0" Procfile.dev; then \
-			sed -i.bak 's/bin\/rails server/bin\/rails server -b 0.0.0.0/' Procfile.dev && rm -f Procfile.dev.bak; \
+			perl -i -pe 's/bin\/rails server/bin\/rails server -b 0.0.0.0/' Procfile.dev; \
 			echo "✅ Procfile.dev を Docker 環境用に編集しました"; \
 		fi \
 	fi
@@ -47,7 +47,7 @@ init-ec: ## Solidus専用Railsアプリケーションを作成（ECサイト開
 	@echo "⚙️  Procfile.devをDocker環境用に調整します..."
 	@if [ -f Procfile.dev ]; then \
 		if ! grep -q "\-b 0.0.0.0" Procfile.dev; then \
-			sed -i.bak 's/bin\/rails server/bin\/rails server -b 0.0.0.0/' Procfile.dev && rm -f Procfile.dev.bak; \
+			perl -i -pe 's/bin\/rails server/bin\/rails server -b 0.0.0.0/' Procfile.dev; \
 			echo "✅ Procfile.dev を Docker 環境用に編集しました"; \
 		fi \
 	fi
