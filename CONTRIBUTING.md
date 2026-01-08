@@ -269,21 +269,63 @@ rails_boilerplate への貢献ありがとうございます。このガイド�
 
 ### セットアップ手順
 
+このプロジェクトでは、用途に応じて2つの初期化コマンドを用意しています。
+
+#### 通常のRails開発の場合
+
 ```bash
 # リポジトリをクローン
-git clone <your-repo-url>
+git clone https://github.com/zomians/rails_boilerplate.git
 cd rails_boilerplate
 
 # 環境変数の確認・調整
 # .env.development を編集して Ruby/Rails/Postgres バージョンやDB設定を変更できます
 # 本番環境は .env.production を使用します
 
-# 初回のみ: Rails アプリケーションを作成
+# 初回のみ: 定番gemを含むRailsアプリケーションを作成
 make init
 
 # コンテナ起動
 make up
 ```
+
+**`make init` で追加される定番gem:**
+- `mini_racer`: Node.js不要のV8エンジン
+- `pry-rails`: デバッグREPL（development）
+- `rspec-rails`, `factory_bot_rails`, `faker`: テスト関連（development, test）
+- Rails 8にはデフォルトで `rubocop-rails-omakase` が含まれます
+
+#### ECサイト開発（Solidus）の場合
+
+```bash
+# リポジトリをクローン
+git clone https://github.com/zomians/rails_boilerplate.git
+cd rails_boilerplate
+
+# 環境変数の確認・調整
+# .env.development を編集して Ruby/Rails/Postgres バージョンやDB設定を変更できます
+# 本番環境は .env.production を使用します
+
+# 初回のみ: Solidus専用Railsアプリケーションを作成
+make init-ec
+
+# コンテナ起動
+make up
+
+# 管理画面にアクセス
+# http://localhost:3000/admin
+# ログイン: admin@example.com / test123
+```
+
+**`make init-ec` で行われる処理:**
+- Rails newの実行（Solidus用に最適化）
+- Sprockets用のmanifest.js作成
+- `mini_racer`の追加
+- Solidus gemの追加とインストール
+- データベースマイグレーション
+- サンプルデータのロード
+
+**重要:** `make init` と `make init-ec` は独立した処理です。どちらか一方のみを実行してください。
 
 ### よく使うコマンド
 
