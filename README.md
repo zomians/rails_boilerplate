@@ -45,6 +45,9 @@ make bash   # コンテナに入る
 - `SECRET_KEY_BASE`
 - `POSTGRES_PASSWORD`
 
-## 詳細ドキュメント
+## ドキュメント
 
-- [CONTRIBUTING.md](CONTRIBUTING.md) - 開発ガイドライン・ワークフロー
+このプロジェクトでは、役割に応じて以下のドキュメントを用意しています。
+
+- **[CLAUDE.md](CLAUDE.md)** - プロジェクトのセットアップ、コマンド、技術情報（Docker、環境変数、デプロイ等）
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - 開発プロセスガイドライン（Issue作成、Gitワークフロー、コミット規約、PR作成フロー等）

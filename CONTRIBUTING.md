@@ -1,6 +1,17 @@
 # 開発ガイド
 
-rails_boilerplate への貢献ありがとうございます。このガイドでは、Issue 作成から PR までの開発フローと基準をまとめます。
+このドキュメントは、Issue作成からPRまでの開発フローと基準をまとめた、汎用的な開発ガイドラインです。
+
+**対象読者:** 開発者、コントリビューター（どのプロジェクトでも適用可能）
+
+**このファイルの目的:**
+- 一貫性のある開発プロセスを提供
+- コードの品質とセキュリティを保証
+- チーム間のコミュニケーションを円滑化
+
+**プロジェクト固有の技術情報**（セットアップ手順、コマンド等）は、プロジェクトのREADMEまたは技術ドキュメントを参照してください。
+
+---
 
 ## 目次
 
@@ -12,13 +23,12 @@ rails_boilerplate への貢献ありがとうございます。このガイド�
 - [コーディング規約](#コーディング規約)
 - [テスト方針](#テスト方針)
 - [コードレビュー基準](#コードレビュー基準)
-- [トラブルシューティング](#トラブルシューティング)
 
 ---
 
 ## Issue 作成ガイドライン
 
-新機能開発やバグ修正の前に、必ず GitHub Issue を作成してください。Issue は設計書であり、レビューの基準です。
+新機能開発やバグ修正の前に、必ず Issue を作成してください。Issue は設計書であり、レビューの基準です。
 
 ### Issue テンプレート
 
@@ -179,7 +189,7 @@ rails_boilerplate への貢献ありがとうございます。このガイド�
 | **設計** | 技術仕様の詳細化、アーキテクチャ検討 | 15-20% |
 | **実装** | コーディング、デバッグ | 40-50% |
 | **テスト** | テストコード作成、動作確認 | 20-25% |
-| **ドキュメント更新** | README、CONTRIBUTING等の更新 | 10-15% |
+| **ドキュメント更新** | README、ガイド等の更新 | 10-15% |
 
 #### 見積単位
 
@@ -258,248 +268,7 @@ rails_boilerplate への貢献ありがとうございます。このガイド�
 
 ## 開発環境セットアップ
 
-### 必要なツール
-
-| ツール | 必須/任意 | 推奨バージョン | 用途 |
-|--------|----------|--------------|------|
-| Docker | 必須 | 20.10+ | コンテナ実行環境 |
-| Docker Compose | 必須 | 2.0+ | 複数コンテナの管理 |
-| Git | 必須 | 2.30+ | バージョン管理 |
-| Make | 任意 | - | コマンド簡略化 |
-
-### セットアップ手順
-
-このプロジェクトでは、用途に応じて2つの初期化コマンドを用意しています。
-
-#### 通常のRails開発の場合
-
-```bash
-# リポジトリをクローン
-git clone https://github.com/zomians/rails_boilerplate.git
-cd rails_boilerplate
-
-# 環境変数の確認・調整
-# .env.development を編集して Ruby/Rails/Postgres バージョンやDB設定を変更できます
-# 本番環境は .env.production を使用します
-
-# 初回のみ: 定番gemを含むRailsアプリケーションを作成
-make init
-
-# コンテナ起動
-make up
-```
-
-**`make init` で追加される定番gem:**
-- `mini_racer`: Node.js不要のV8エンジン
-- `pry-rails`: デバッグREPL（development）
-- `rspec-rails`, `factory_bot_rails`, `faker`: テスト関連（development, test）
-- Rails 8にはデフォルトで `rubocop-rails-omakase` が含まれます
-
-#### ECサイト開発（Solidus）の場合
-
-```bash
-# リポジトリをクローン
-git clone https://github.com/zomians/rails_boilerplate.git
-cd rails_boilerplate
-
-# 環境変数の確認・調整
-# .env.development を編集して Ruby/Rails/Postgres バージョンやDB設定を変更できます
-# 本番環境は .env.production を使用します
-
-# 初回のみ: Solidus専用Railsアプリケーションを作成
-make init-ec
-
-# コンテナ起動
-make up
-
-# 管理画面にアクセス
-# http://localhost:3000/admin
-# ログイン: admin@example.com / test123
-```
-
-**`make init-ec` で行われる処理:**
-- Rails newの実行（Solidus用に最適化）
-- Sprockets用のmanifest.js作成
-- `mini_racer`の追加
-- Solidus gemの追加とインストール
-- データベースマイグレーション
-- サンプルデータのロード
-
-**重要:** `make init` と `make init-ec` は独立した処理です。どちらか一方のみを実行してください。
-
-### よく使うコマンド
-
-#### 開発環境
-
-```bash
-# コンテナ起動
-make up
-
-# app コンテナに入る
-make bash
-
-# サービス状態確認
-docker compose --env-file .env.development ps
-
-# 利用可能なコマンド一覧を表示
-make help
-```
-
-#### 本番環境
-
-```bash
-# 本番環境を起動
-make prod-up
-
-# 本番環境を停止
-make prod-down
-
-# 本番環境のログを表示
-make prod-logs
-
-# 本番環境のappコンテナに入る
-make prod-bash
-
-# 本番環境のコンテナ状態を表示
-make prod-ps
-
-# その他の本番環境コマンド
-make help  # 全コマンド確認
-```
-
-### 環境変数管理
-
-このプロジェクトでは、環境ごとに異なる環境変数ファイルを使用します。
-
-**ファイル構成:**
-- `.env.development`: 開発環境用（リポジトリにコミット済み、サンプル値含む）
-- `.env.production`: 本番環境用（リポジトリにコミット済み、サンプル値含む）
-
-**設計方針:**
-- `.env` ファイルは使用しない
-- `--env-file` オプションで環境ファイルを明示的に指定
-- Makefile の `include` は使用しない（環境変数の競合を防ぐため）
-
-**メリット:**
-- 使用する環境が明示的で、誤った環境での実行を防げる
-- 環境ファイルのコピー不要
-- 開発環境と本番環境の設定が混在しない
-
-**重要:** 本番環境では `.env.production` の以下の値を必ず変更してください：
-- `SECRET_KEY_BASE`
-- `POSTGRES_PASSWORD`
-
----
-
-## 本番環境デプロイ
-
-このプロジェクトは Docker Compose を使用した本番環境デプロイをサポートしています。
-
-### 構成ファイル
-
-| ファイル | 用途 |
-|---------|------|
-| `compose.production.yaml` | 本番環境用 Docker Compose 設定 |
-| `.env.production` | 本番環境用環境変数（SECRET_KEY_BASE等を要変更） |
-| `Dockerfile.app` | 本番ステージを含むマルチステージビルド |
-
-### VPSへのデプロイ手順
-
-#### 1. VPS上での初回セットアップ
-
-```bash
-# VPSにSSH接続
-ssh user@your-vps-ip
-
-# リポジトリをclone
-git clone https://github.com/zomians/rails_boilerplate.git
-cd rails_boilerplate
-
-# .env.productionを編集（SECRET_KEY_BASE等を設定）
-vi .env.production
-```
-
-**必須設定項目:**
-- `SECRET_KEY_BASE`: `docker compose -f compose.production.yaml run --rm app bundle exec rails secret` で生成
-- `POSTGRES_PASSWORD`: ランダムな強力なパスワードに変更
-
-#### 2. 本番環境の起動
-
-```bash
-# イメージをビルド
-make prod-build
-
-# 本番環境を起動
-make prod-up
-
-# データベースをセットアップ
-make prod-db-setup
-```
-
-#### 3. 確認
-
-アプリケーション: `http://your-vps-ip:3000`
-
-### 更新デプロイ
-
-コードを更新した場合の手順：
-
-```bash
-# VPS上で
-git pull origin main
-
-# イメージを再ビルド
-make prod-build
-
-# 本番環境を再起動
-make prod-restart
-```
-
-### 本番環境の操作コマンド
-
-Makefile に以下のコマンドが用意されています：
-
-| コマンド | 説明 |
-|---------|------|
-| `make prod-up` | 本番環境を起動 |
-| `make prod-down` | 本番環境を停止 |
-| `make prod-build` | 本番環境のイメージをビルド |
-| `make prod-restart` | 本番環境を再起動 |
-| `make prod-logs` | ログを表示 |
-| `make prod-bash` | appコンテナに入る |
-| `make prod-ps` | コンテナ状態を表示 |
-| `make prod-db-setup` | データベースをセットアップ |
-| `make prod-db-reset` | データベースをリセット（要確認） |
-
-**注意:** `make prod-db-reset` は全データを削除するため、実行時に確認が求められます。
-
-### トラブルシューティング
-
-#### コンテナが起動しない
-
-```bash
-# ログを確認
-make prod-logs
-
-# コンテナ状態を確認
-make prod-ps
-
-# クリーンアップして再起動
-make prod-down
-make prod-build
-make prod-up
-```
-
-#### データベース接続エラー
-
-```bash
-# データベースコンテナの状態を確認
-make prod-ps
-
-# データベースを再セットアップ
-make prod-db-reset  # 注意: 全データ削除
-make prod-db-setup
-```
+プロジェクトのセットアップ手順は、**プロジェクトのREADMEまたは技術ドキュメント**を参照してください。
 
 ---
 
@@ -544,7 +313,7 @@ git commit -m "feat: 新機能を追加 (issue#42)"
 # 6. プッシュ
 git push origin feature/42-new-feature
 
-# 7. GitHub で PR を作成
+# 7. PR を作成
 ```
 
 #### ⚠️ 間違いに気づいた場合
@@ -640,19 +409,17 @@ update               # ❌ typeとIssue番号がない
 | `docs` | ドキュメントのみの変更 | `docs: READMEを更新` |
 | `refactor` | リファクタリング（機能変更なし） | `refactor(user): サービスクラスに抽出` |
 | `test` | テストの追加・修正 | `test(user): バリデーションテストを追加` |
-| `chore` | ビルド・ツール・依存関係の変更 | `chore: Gemfile更新` |
+| `chore` | ビルド・ツール・依存関係の変更 | `chore: 依存関係を更新` |
 | `perf` | パフォーマンス改善 | `perf(query): N+1問題を解消` |
 | `style` | コードスタイルの変更（機能に影響なし） | `style: インデント修正` |
 
 **Scope（任意）:**
 
-| Scope | 説明 |
-|-------|------|
-| `app` | アプリケーション全般 |
-| `auth` | 認証関連 |
-| `api` | API関連 |
-| `db` | データベース関連 |
-| `docker` | Docker設定 |
+プロジェクトに応じて適切なスコープを定義してください。例:
+- `app`: アプリケーション全般
+- `auth`: 認証関連
+- `api`: API関連
+- `db`: データベース関連
 
 **良い例:**
 
@@ -721,7 +488,7 @@ git push origin feature/12-xxx
 
 ## テスト方法
 
-[動作確認手順をbashコマンドで記載]
+[動作確認手順を記載]
 
 ## チェックリスト
 
@@ -730,7 +497,6 @@ git push origin feature/12-xxx
 - [ ] ドキュメント更新
 
 Closes #XX
-
 ```
 
 ### ❌ 禁止事項：AI生成メッセージの追加
@@ -781,7 +547,7 @@ Generated by GitHub Copilot  # ❌
 
 #### 使い方
 
-GitHub の PR 画面で「Squash and merge」を選択してください。
+プルリクエストのマージ画面で「Squash and merge」を選択してください。
 
 ```
 Squash and merge ▼
@@ -793,46 +559,66 @@ Squash and merge ▼
 
 ## コーディング規約
 
-### Rails
+### 一般原則
 
-- ビジネスロジックは Service Object に抽出する
-- 変更が広がる場合は Decorator / Concern を検討する
-- RuboCop などの静的解析がある場合は準拠する
+- **1メソッド1責務**: 各メソッドは単一の責務のみを持つ
+- **早期return**: ネストを浅く保つために、早期returnを活用
+- **意味のある命名**: 変数名、メソッド名、クラス名は意図が明確に伝わるようにする
+- **DRY原則**: 同じコードを繰り返さない（Don't Repeat Yourself）
 
-### Ruby
+### フレームワーク固有の規約
 
-- 1メソッド1責務を意識
-- 早期 return でネストを浅く
+プロジェクトで使用しているフレームワークのベストプラクティスに従ってください。例:
+
+- **Rails**: ビジネスロジックはService Objectに抽出する
+- **Django**: Fat models, thin views の原則に従う
+- **Next.js**: Server ComponentsとClient Componentsを適切に使い分ける
+
+### リンター・フォーマッター
+
+プロジェクトに静的解析ツール（RuboCop、ESLint、Prettier等）が設定されている場合は、必ず準拠してください。
 
 ---
 
 ## テスト方針
 
-- 新機能・修正にはテストを追加する
-- RSpec を標準テストフレームワークとして扱う
+### 基本原則
 
-例:
+- **新機能・修正にはテストを追加**: すべての変更には対応するテストが必要
+- **テスト駆動開発（TDD）**: 可能な限り、テストを先に書く
+- **テストの独立性**: 各テストは他のテストに依存せず、独立して実行可能
+
+### テストの種類
+
+| テストレベル | 目的 | 例 |
+|------------|------|-----|
+| **ユニットテスト** | 個別の関数・メソッドの動作確認 | モデルのバリデーション、ヘルパーメソッド |
+| **統合テスト** | 複数のコンポーネントの連携確認 | APIエンドポイント、サービスクラス |
+| **E2Eテスト** | ユーザーシナリオの動作確認 | ログインフロー、購入フロー |
+
+### テストフレームワーク
+
+プロジェクトで使用されているテストフレームワークに従ってください。例:
+
+- **Ruby**: RSpec、Minitest
+- **JavaScript**: Jest、Mocha、Vitest
+- **Python**: pytest、unittest
+
+### テストコード例（一般的な構造）
 
 ```ruby
-# spec/models/user_spec.rb
-require 'rails_helper'
-
-RSpec.describe User, type: :model do
+# 例: RSpec
+describe 'User' do
   it 'is valid with a name' do
-    user = build(:user, name: 'Alice')
+    user = User.new(name: 'Alice')
     expect(user).to be_valid
   end
+
+  it 'is invalid without a name' do
+    user = User.new(name: nil)
+    expect(user).not_to be_valid
+  end
 end
-```
-
-### RSpec セットアップ（初回）
-
-```bash
-# Gemfile に追加
-# gem 'rspec-rails', group: [:development, :test]
-
-bundle install
-rails generate rspec:install
 ```
 
 ---
@@ -842,11 +628,11 @@ rails generate rspec:install
 ### 基本チェック項目
 
 - [ ] Issue の要件を満たしているか
-- [ ] テストが十分か
-- [ ] 命名が適切か
-- [ ] パフォーマンス上の問題（N+1など）がないか
+- [ ] テストが十分か（カバレッジ、エッジケース）
+- [ ] 命名が適切か（変数、メソッド、クラス名）
+- [ ] パフォーマンス上の問題（N+1問題、不要なループ等）がないか
 - [ ] セキュリティ上の懸念がないか
-- [ ] マイグレーションはロールバック可能か
+- [ ] ドキュメントが更新されているか
 
 ### セキュリティチェック
 
@@ -867,14 +653,13 @@ User.where("email = '#{params[:email]}'")
 
 #### 2. XSS（クロスサイトスクリプティング）対策
 
-**✅ DO: ERBの自動エスケープを活用**
+**✅ DO: 自動エスケープを活用**
 ```erb
 <!-- 良い例 - 自動的にエスケープされる -->
 <p><%= @user.name %></p>
-<p><%= sanitize @user.bio %></p>
 ```
 
-**❌ DON'T: html_safe を安易に使わない**
+**❌ DON'T: 生のHTMLを安易に出力しない**
 ```erb
 <!-- 悪い例 - XSSの危険 -->
 <p><%= @user.name.html_safe %></p>
@@ -883,25 +668,16 @@ User.where("email = '#{params[:email]}'")
 
 #### 3. CSRF（クロスサイトリクエストフォージェリ）対策
 
-**✅ DO: Railsのデフォルト設定を維持**
-```ruby
-# 良い例 - ApplicationController
-class ApplicationController < ActionController::Base
-  protect_from_forgery with: :exception
-end
-```
+**✅ DO: フレームワークのデフォルト保護を維持**
+- フレームワークのCSRF保護機能を有効にする
+- トークンを適切に検証する
 
 **❌ DON'T: CSRF保護を無効化しない**
-```ruby
-# 悪い例
-class ApplicationController < ActionController::Base
-  skip_before_action :verify_authenticity_token  # ❌
-end
-```
+- セキュリティ保護を安易に無効化しない
 
 #### 4. マスアサインメント対策
 
-**✅ DO: Strong Parameters を使う**
+**✅ DO: パラメータをホワイトリスト化**
 ```ruby
 # 良い例
 def user_params
@@ -913,7 +689,7 @@ def create
 end
 ```
 
-**❌ DON'T: params を直接渡さない**
+**❌ DON'T: パラメータを直接渡さない**
 ```ruby
 # 悪い例 - 意図しない属性の更新が可能
 def create
@@ -959,25 +735,7 @@ end
 
 ---
 
-## トラブルシューティング
-
-### コンテナ起動に失敗する
-
-```bash
-# クリーンアップ後に再起動
-docker compose down -v
-docker compose up -d
-```
-
-### 依存インストールに失敗する
-
-```bash
-# ボリューム削除後に再ビルド
-docker compose build --no-cache
-```
-
----
-
 ## 質問・サポート
 
 - Issue を作成して相談してください。
+- プロジェクトのドキュメント、README、技術ドキュメントを参照してください。
