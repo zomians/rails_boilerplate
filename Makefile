@@ -9,13 +9,11 @@ init: ## 定番gemを含むRailsアプリケーションを作成（通常開発
 	docker compose --env-file .env.development run --rm --workdir /app app \
 	rails new . --name $$APP_NAME --database=postgresql --css=tailwind --javascript=importmap --skip-test --force
 	@echo "✅ Rails アプリケーションを作成しました"
-	@echo "⚙️  Puma設定をDocker環境用に調整します..."
-	@if [ -f config/puma.rb ]; then \
-		if ! grep -q "bind.*0.0.0.0" config/puma.rb; then \
-			echo "" >> config/puma.rb; \
-			echo "# Bind to 0.0.0.0 for Docker environments" >> config/puma.rb; \
-			echo 'bind "tcp://0.0.0.0:#{ENV.fetch(\"PORT\", 3000)}"' >> config/puma.rb; \
-			echo "✅ config/puma.rb を Docker 環境用に編集しました"; \
+	@echo "⚙️  Procfile.devをDocker環境用に調整します..."
+	@if [ -f Procfile.dev ]; then \
+		if ! grep -q "\-b 0.0.0.0" Procfile.dev; then \
+			sed -i.bak 's/bin\/rails server/bin\/rails server -b 0.0.0.0/' Procfile.dev && rm -f Procfile.dev.bak; \
+			echo "✅ Procfile.dev を Docker 環境用に編集しました"; \
 		fi \
 	fi
 	@echo "📦 定番gemを追加します..."
@@ -33,15 +31,6 @@ init-ec: ## Solidus専用Railsアプリケーションを作成（ECサイト開
 	docker compose --env-file .env.development run --rm --workdir /app app \
 	rails new . --name $$APP_NAME --database=postgresql --javascript=importmap --force
 	@echo "✅ Rails アプリケーションを作成しました"
-	@echo "⚙️  Puma設定をDocker環境用に調整します..."
-	@if [ -f config/puma.rb ]; then \
-		if ! grep -q "bind.*0.0.0.0" config/puma.rb; then \
-			echo "" >> config/puma.rb; \
-			echo "# Bind to 0.0.0.0 for Docker environments" >> config/puma.rb; \
-			echo 'bind "tcp://0.0.0.0:#{ENV.fetch(\"PORT\", 3000)}"' >> config/puma.rb; \
-			echo "✅ config/puma.rb を Docker 環境用に編集しました"; \
-		fi \
-	fi
 	@echo "📄 Sprockets用のmanifest.jsを作成します..."
 	@mkdir -p app/assets/config
 	@printf "//= link_tree ../images\n//= link_directory ../stylesheets .css\n//= link_directory ../javascripts .js\n" > app/assets/config/manifest.js
@@ -55,6 +44,13 @@ init-ec: ## Solidus専用Railsアプリケーションを作成（ECサイト開
 	bundle install && \
 	rails db:migrate && \
 	rails db:seed"
+	@echo "⚙️  Procfile.devをDocker環境用に調整します..."
+	@if [ -f Procfile.dev ]; then \
+		if ! grep -q "\-b 0.0.0.0" Procfile.dev; then \
+			sed -i.bak 's/bin\/rails server/bin\/rails server -b 0.0.0.0/' Procfile.dev && rm -f Procfile.dev.bak; \
+			echo "✅ Procfile.dev を Docker 環境用に編集しました"; \
+		fi \
+	fi
 	@echo "🎉 Solidusのセットアップ完了！"
 	@echo "次のコマンド: make up"
 	@echo "管理画面: http://localhost:3000/admin (admin@example.com / test123)"
