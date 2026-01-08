@@ -3,17 +3,57 @@ help: ## ヘルプを表示
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: init
-init: ## Rails new を実行（初回のみ）
+init: ## 定番gemを含むRailsアプリケーションを作成（通常開発用）
+	@echo "📦 Railsアプリケーションを作成します..."
 	@set -a && . ./.env.development && set +a && \
 	docker compose --env-file .env.development run --rm --workdir /app app \
 	rails new . --name $$APP_NAME --database=postgresql --css=tailwind --javascript=importmap --skip-test --force
 	@echo "✅ Rails アプリケーションを作成しました"
+	@echo "⚙️  Procfile.devをDocker環境用に調整します..."
 	@if [ -f Procfile.dev ]; then \
 		if ! grep -q "\-b 0.0.0.0" Procfile.dev; then \
 			perl -i -pe 's/bin\/rails server/bin\/rails server -b 0.0.0.0/' Procfile.dev; \
 			echo "✅ Procfile.dev を Docker 環境用に編集しました"; \
 		fi \
 	fi
+	@echo "📦 定番gemを追加します..."
+	docker compose --env-file .env.development run --rm --workdir /app app \
+	bash -c "bundle add mini_racer && \
+	bundle add pry-rails --group development && \
+	bundle add rspec-rails factory_bot_rails faker --group 'development,test'"
+	@echo "✅ 定番gemを追加しました"
+	@echo "🎉 セットアップ完了！ 次のコマンド: make up"
+
+.PHONY: init-ec
+init-ec: ## Solidus専用Railsアプリケーションを作成（ECサイト開発用）
+	@echo "📦 Solidus専用Railsアプリケーションを作成します..."
+	@set -a && . ./.env.development && set +a && \
+	docker compose --env-file .env.development run --rm --workdir /app app \
+	rails new . --name $$APP_NAME --database=postgresql --javascript=importmap --force
+	@echo "✅ Rails アプリケーションを作成しました"
+	@echo "📄 Sprockets用のmanifest.jsを作成します..."
+	@mkdir -p app/assets/config
+	@printf "//= link_tree ../images\n//= link_directory ../stylesheets .css\n//= link_directory ../javascripts .js\n" > app/assets/config/manifest.js
+	@echo "✅ manifest.jsを作成しました"
+	@echo "📦 mini_racerを追加します..."
+	docker compose --env-file .env.development run --rm --workdir /app app bundle add mini_racer
+	@echo "📦 Solidusをセットアップします..."
+	docker compose --env-file .env.development run --rm --workdir /app app \
+	bash -c "bundle add solidus && \
+	rails generate solidus:install --auto-accept && \
+	bundle install && \
+	rails db:migrate && \
+	rails db:seed"
+	@echo "⚙️  Procfile.devをDocker環境用に調整します..."
+	@if [ -f Procfile.dev ]; then \
+		if ! grep -q "\-b 0.0.0.0" Procfile.dev; then \
+			perl -i -pe 's/bin\/rails server/bin\/rails server -b 0.0.0.0/' Procfile.dev; \
+			echo "✅ Procfile.dev を Docker 環境用に編集しました"; \
+		fi \
+	fi
+	@echo "🎉 Solidusのセットアップ完了！"
+	@echo "次のコマンド: make up"
+	@echo "管理画面: http://localhost:3000/admin (admin@example.com / test123)"
 
 .PHONY: up
 up: ## コンテナを起動
