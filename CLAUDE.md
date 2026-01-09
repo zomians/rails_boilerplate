@@ -1,269 +1,271 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+> **対象読者**: Claude Code（AI開発アシスタント）
+> **目的**: Claude Codeが作業する際に参照する情報のクイックリファレンス
 
 ---
 
-## Project Overview
+## 重要: ドキュメントの役割分担
 
-This is a **Rails boilerplate** project using Docker for containerized development. The project is designed to quickly bootstrap new Rails applications with a standardized setup.
+作業を開始する前に、必ず以下のドキュメントを確認してください：
 
-**Key Technologies:**
-- Ruby (version configurable in `.env.development`)
-- Rails (version configurable in `.env.development`)
-- PostgreSQL (version configurable in `.env.development`)
-- Docker & Docker Compose
-- Tailwind CSS
-- Import maps
+1. **[README.md](README.md)**: プロジェクト固有の技術情報
+   - プロジェクト概要、技術スタック
+   - 開発環境セットアップ（Docker、make コマンド）
+   - アーキテクチャ（Docker構成、環境変数管理）
+   - よく使うコマンド（詳細）
+   - 本番環境デプロイ手順
+   - プロジェクト構造
+   - トラブルシューティング
+
+2. **[CONTRIBUTING.md](CONTRIBUTING.md)**: 開発規約（**最重要**）
+   - Issue作成ガイドライン
+   - Gitワークフロー（ブランチ戦略）
+   - コミット規約（Conventional Commits）
+   - PR作成フロー
+   - コーディング規約
+   - テスト方針
+   - コードレビュー基準（セキュリティチェック含む）
 
 ---
 
-## Common Commands
+## プロジェクト概要
 
-All commands should be run from the repository root.
+このプロジェクトは、**Railsプロジェクトを素早く立ち上げるためのDocker化されたboilerplate**です。
 
-### Initial Setup (First Time Only)
+### 主要技術
+
+- **Ruby**: 3.3.6
+- **Rails**: 8.0.4
+- **PostgreSQL**: 16-bookworm
+- **Docker & Docker Compose**
+- **Tailwind CSS**、**Import maps**
+
+### 特徴
+
+- Docker Composeによる開発環境
+- 通常のRails開発とECサイト開発（Solidus）に対応
+- 環境変数ファイルの明示的な管理（`.env.development` / `.env.production`）
+- 本番環境デプロイ対応
+
+詳細は [README.md](README.md) を参照してください。
+
+---
+
+## よく使うコマンド
+
+### 初回セットアップ
 
 ```bash
-# Create a new Rails application
+# 通常のRails開発
 make init
 
-# Start containers
+# ECサイト開発（Solidus）
+make init-ec
+
+# コンテナ起動
 make up
 ```
 
-### Development Workflow
+### 開発作業
 
 ```bash
-# Start all containers
+# コンテナ起動
 make up
 
-# Access the app container shell
+# コンテナに入る
 make bash
 
-# View available make commands
+# 全コマンド確認
 make help
 ```
 
-### Inside the Container
-
-Once inside the container (`make bash`), you can run:
+### コンテナ内での作業
 
 ```bash
-# Run Rails console
+# Rails console
 rails console
 
-# Run database migrations
+# マイグレーション
 rails db:migrate
 
-# Run database setup
-rails db:setup
-
-# Generate a new model/controller/etc
-rails generate model User name:string email:string
-
-# Start Rails server (if not running via bin/dev)
-rails server
+# テスト
+bundle exec rspec
 ```
 
-### Docker Commands
+詳細は [README.md](README.md) の「よく使うコマンド」セクションを参照してください。
 
+---
+
+## CONTRIBUTING.mdの活用方法
+
+作業を開始する際は、**必ず [CONTRIBUTING.md](CONTRIBUTING.md) の手順を守ってください**：
+
+### 必須手順
+
+1. **Issue作成** → [Issue作成ガイドライン](CONTRIBUTING.md#issue-作成ガイドライン)
+   - Issue番号を控える（例: #33）
+
+2. **ブランチ作成** → [Gitワークフロー](CONTRIBUTING.md#git-ワークフロー)
+   ```bash
+   git checkout main
+   git pull origin main
+   git checkout -b <type>/<issue番号>-<機能名>
+   # 例: git checkout -b docs/33-separate-file-roles
+   ```
+
+3. **実装作業**
+   - コーディング規約に従う → [コーディング規約](CONTRIBUTING.md#コーディング規約)
+   - セキュリティチェック必須 → [セキュリティチェック](CONTRIBUTING.md#セキュリティチェック)
+
+4. **コミット** → [コミット規約](CONTRIBUTING.md#コミット規約)
+   ```bash
+   git add .
+   git commit -m "<type>(<scope>): <subject> (issue#<番号>)"
+   # 例: git commit -m "docs: 3ファイルの役割分担を明確化 (issue#33)"
+   ```
+
+5. **プッシュとPR作成** → [PR作成フロー](CONTRIBUTING.md#pr-作成フロー)
+   ```bash
+   git push origin <branch-name>
+   # GitHub でPRを作成
+   ```
+
+### 重要な禁止事項
+
+❌ **mainブランチへの直接コミット・プッシュ**
+- 必ずブランチを作成してから作業する
+
+❌ **AI生成メッセージの追加**
+- コミットメッセージやPRに「Generated with Claude Code」や「Co-Authored-By: Claude」を追加しない
+- 詳細: [禁止事項：AI生成メッセージの追加](CONTRIBUTING.md#-禁止事項ai生成メッセージの追加)
+
+### セキュリティチェック項目
+
+実装時に以下を必ず確認：
+
+- [ ] SQLインジェクション対策（プレースホルダー使用）
+- [ ] XSS対策（ERB自動エスケープ、html_safe禁止）
+- [ ] CSRF保護（Rails デフォルト維持）
+- [ ] Strong Parameters使用
+- [ ] 機密情報の環境変数化
+- [ ] 認可チェック実装
+
+詳細: [セキュリティチェック](CONTRIBUTING.md#セキュリティチェック)
+
+---
+
+## アーキテクチャ概要
+
+### Docker構成
+
+```
+app (Rails) → db (PostgreSQL)
+```
+
+- **app**: ポート3000、カレントディレクトリをマウント
+- **db**: ポート5432、postgres_dataボリュームで永続化
+
+### 環境変数管理
+
+- 開発環境: `.env.development`（コミット済み）
+- 本番環境: `.env.production`（コミット済み、要編集）
+- `--env-file` で明示的に指定する設計
+
+詳細は [README.md のアーキテクチャセクション](README.md#アーキテクチャ) を参照してください。
+
+---
+
+## トラブルシューティング
+
+一般的な問題の解決方法は [README.md のトラブルシューティングセクション](README.md#トラブルシューティング) を参照してください。
+
+### よくある問題
+
+**コンテナ起動失敗:**
 ```bash
-# View running containers
-docker compose --env-file .env.development ps
+docker compose --env-file .env.development down -v
+docker compose --env-file .env.development up -d
+```
 
-# View logs
-docker compose --env-file .env.development logs app
-docker compose --env-file .env.development logs db
-
-# Stop containers
-docker compose --env-file .env.development down
-
-# Rebuild containers (after changing Dockerfile or dependencies)
+**依存関係の問題:**
+```bash
 docker compose --env-file .env.development build --no-cache
+```
 
-# Clean all Docker resources (WARNING: affects ALL Docker projects)
-make clean
+**データベースの問題:**
+```bash
+make bash
+rails db:reset
 ```
 
 ---
 
-## Architecture
+## Claude Code向けのワークフローガイド
 
-### Docker Setup
+### 開発タスクを受けたときの手順
 
-The project uses a **multi-container Docker setup**:
+1. **ドキュメント確認**
+   - README.mdで技術仕様を確認
+   - CONTRIBUTING.mdで開発規約を確認
 
-1. **app service** (`Dockerfile.app`):
-   - Ruby/Rails development environment
-   - Mounts current directory to `/app` in container
-   - Uses `bundle_cache` volume for gem persistence
-   - Runs `bin/dev` by default (starts Rails server and builds assets)
-   - Accessible at `http://localhost:3000`
+2. **Issue確認**
+   - 既存Issueがあれば内容を確認
+   - なければIssue作成を提案
 
-2. **db service**:
-   - PostgreSQL database
-   - Data persisted in `postgres_data` volume
-   - Accessible at `localhost:5432`
-   - Health check ensures DB is ready before app starts
+3. **ブランチ作成**
+   - 必ずmainから分岐
+   - 命名規則: `<type>/<issue番号>-<機能名>`
 
-### Configuration
+4. **実装**
+   - セキュリティチェックを意識
+   - テストを追加
+   - コーディング規約に従う
 
-#### Environment Variables
+5. **コミット**
+   - Conventional Commits形式
+   - issue番号を含める
+   - AI生成メッセージは追加しない
 
-**ファイル構成:**
-- `.env.development`: 開発環境用の設定（リポジトリにコミット、サンプル値含む）
-- `.env.production`: compose.production.yaml想定の本番環境用設定（リポジトリにコミット、サンプル値含む）
+6. **PR作成**
+   - PRテンプレートに従う
+   - 変更内容を明確に説明
+   - AI生成メッセージは追加しない
 
-**設計方針:**
-- `.env` ファイルは使用しない
-- `--env-file` オプションで環境ファイルを明示的に指定
-- 開発環境: `docker compose --env-file .env.development`
-- 本番環境: `docker compose -f compose.production.yaml --env-file .env.production`
+### 効果的なプロンプト例
 
-**メリット:**
-- 環境ファイルのコピー不要
-- 使用する環境が明示的
-- `.gitignore` の設定不要
-- セキュリティ向上（間違って機密情報をコミットするリスク低減）
-
-**環境変数一覧:**
-- `RUBY_VERSION`: Ruby version (default: 3.3.6)
-- `RAILS_VERSION`: Rails version (default: 8.0.4)
-- `POSTGRES_VERSION`: PostgreSQL version (default: 16-bookworm)
-- `APP_NAME`: Application name
-- `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: Database credentials
-- `DATABASE_URL`: PostgreSQL connection URL (auto-generated)
-
-**本番環境用追加環境変数:**
-- `SECRET_KEY_BASE`: Rails secret key
-- `RAILS_ENV=production`
-- `RAILS_LOG_TO_STDOUT=true`
-- `RAILS_SERVE_STATIC_FILES=true`
-
-### Project Structure
-
-```
-.
-├── .env.development     # Development environment variables (committed)
-├── .env.production      # Production environment variables template (committed)
-├── compose.yaml         # Docker Compose configuration for development
-├── Dockerfile.app       # App container definition (multi-stage)
-├── Makefile            # Development shortcuts
-├── CONTRIBUTING.md     # Development guidelines and workflow
-└── CLAUDE.md           # This file
-```
-
-**Note**: After running `make init`, a full Rails application structure will be created in the current directory.
-
----
-
-## Development Guidelines
-
-**IMPORTANT**: Always follow [CONTRIBUTING.md](CONTRIBUTING.md) for:
-- Git workflow and branch naming
-- Commit message format (Conventional Commits)
-- PR creation process
-- Security guidelines
-- Code review standards
-
-### Key Workflow Principles
-
-1. **Always create a branch before working**
-   - Never commit directly to `main`
-   - Branch naming: `<type>/<issue-number>-<description>`
-   - Example: `feature/12-user-authentication`
-
-2. **Follow Conventional Commits**
-   - Format: `<type>(<scope>): <subject> (issue#<number>)`
-   - Example: `feat(auth): add login functionality (issue#12)`
-
-3. **Use Squash and Merge**
-   - Default merge strategy for this project
-   - Keeps main branch history clean
-
-4. **Never add AI-generated messages**
-   - Don't add "Generated with Claude Code" or similar messages
-   - Don't add "Co-Authored-By: Claude" to commits or PRs
-   - See CONTRIBUTING.md for details
-
----
-
-## Working with Claude Code
-
-### Effective Prompts
-
-**Good:**
+**良い例:**
 ```
 Implement issue #12 following CONTRIBUTING.md.
 Create a feature branch, implement the User model with email validation,
 write RSpec tests, commit, and create a PR.
 ```
 
-**Bad:**
+**悪い例:**
 ```
 Add a user model
 ```
 
-### Always Reference CONTRIBUTING.md
-
-When asking Claude to perform development tasks, explicitly mention:
-```
-Follow CONTRIBUTING.md for branch naming, commit messages, and PR creation.
-```
-
-### Security Checks
-
-Always verify security requirements from CONTRIBUTING.md:
-- SQL injection prevention (use placeholders)
-- XSS prevention (ERB auto-escaping)
-- CSRF protection (Rails default)
-- Strong Parameters
-- Authorization checks
+常に以下を意識：
+- Issue番号を明示
+- CONTRIBUTING.mdへの言及
+- 具体的な要件
 
 ---
 
-## Troubleshooting
+## 参考リンク
 
-### Container Issues
-
-```bash
-# Clean restart
-docker compose --env-file .env.development down -v
-docker compose --env-file .env.development up -d
-
-# Rebuild from scratch
-docker compose --env-file .env.development build --no-cache
-docker compose --env-file .env.development up -d
-```
-
-### Database Issues
-
-```bash
-# Access container
-make bash
-
-# Inside container:
-rails db:reset
-rails db:migrate
-```
-
-### Permission Issues
-
-If you encounter permission issues with files created by Docker:
-
-```bash
-# Fix ownership (run on host)
-sudo chown -R $(id -u):$(id -g) .
-```
+- [README.md](README.md) - プロジェクト固有の技術情報
+- [CONTRIBUTING.md](CONTRIBUTING.md) - 開発規約（最重要）
+- [Conventional Commits](https://www.conventionalcommits.org/) - コミット規約の詳細
 
 ---
 
-## Important Notes
+## まとめ
 
-1. **First-time setup**: Run `make init` only once to create the Rails application
-2. **Environment configuration**: Edit `.env.development` or `.env.production` to change settings
-3. **Volume persistence**: Gems and database data persist across container restarts
-4. **Port conflicts**: Ensure ports 3000 and 5432 are available
-5. **Make commands**: Run `make help` to see all available commands
-6. **Environment files**: Use `--env-file` to explicitly specify which environment to use
+このファイル（CLAUDE.md）はクイックリファレンスです。詳細情報は必ず以下を参照してください：
+
+- **技術的な質問** → [README.md](README.md)
+- **開発フローの質問** → [CONTRIBUTING.md](CONTRIBUTING.md)
+
+作業開始前に必ず両ファイルを確認し、規約に従って進めてください。
