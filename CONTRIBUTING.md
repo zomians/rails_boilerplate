@@ -1,18 +1,24 @@
 # 開発ガイド
 
+> **対象読者**: 人間の開発者（コントリビューター）
+> **目的**: プロジェクトへの貢献手順と開発規約
+>
+> このガイドは汎用的なRailsプロジェクトの開発規約です。
+> プロジェクト固有の情報（セットアップ、アーキテクチャ、コマンド、デプロイ等）は [README.md](README.md) を参照してください。
+
 rails_boilerplate への貢献ありがとうございます。このガイドでは、Issue 作成から PR までの開発フローと基準をまとめます。
+
+---
 
 ## 目次
 
 - [Issue 作成ガイドライン](#issue-作成ガイドライン)
-- [開発環境セットアップ](#開発環境セットアップ)
 - [Git ワークフロー](#git-ワークフロー)
 - [コミット規約](#コミット規約)
 - [PR 作成フロー](#pr-作成フロー)
 - [コーディング規約](#コーディング規約)
 - [テスト方針](#テスト方針)
 - [コードレビュー基準](#コードレビュー基準)
-- [トラブルシューティング](#トラブルシューティング)
 
 ---
 
@@ -188,7 +194,7 @@ rails_boilerplate への貢献ありがとうございます。このガイド�
 - **最小単位**: 0.5時間
 - **最大単位**: 16時間（2営業日）
 
-💡 **推奨**: 16時間を超える場合は、タスクを分割してください。
+推奨: 16時間を超える場合は、タスクを分割してください。
 
 #### 確実性レベル
 
@@ -238,7 +244,7 @@ rails_boilerplate への貢献ありがとうございます。このガイド�
 最終見積: 10h
 ```
 
-💡 **推奨**: 全体に+25%のバッファを追加することで、予期せぬ問題に対応できます。
+推奨: 全体に+25%のバッファを追加することで、予期せぬ問題に対応できます。
 
 #### 優先度と難易度の定義
 
@@ -253,253 +259,6 @@ rails_boilerplate への貢献ありがとうございます。このガイド�
 | **Low** | 簡単な修正、既知の実装パターン | 2-4時間 |
 | **Medium** | 通常の機能開発、一般的な複雑さ | 8-16時間 |
 | **High** | 複雑な実装、新技術、大規模変更 | 24時間以上 |
-
----
-
-## 開発環境セットアップ
-
-### 必要なツール
-
-| ツール | 必須/任意 | 推奨バージョン | 用途 |
-|--------|----------|--------------|------|
-| Docker | 必須 | 20.10+ | コンテナ実行環境 |
-| Docker Compose | 必須 | 2.0+ | 複数コンテナの管理 |
-| Git | 必須 | 2.30+ | バージョン管理 |
-| Make | 任意 | - | コマンド簡略化 |
-
-### セットアップ手順
-
-このプロジェクトでは、用途に応じて2つの初期化コマンドを用意しています。
-
-#### 通常のRails開発の場合
-
-```bash
-# リポジトリをクローン
-git clone https://github.com/zomians/rails_boilerplate.git
-cd rails_boilerplate
-
-# 環境変数の確認・調整
-# .env.development を編集して Ruby/Rails/Postgres バージョンやDB設定を変更できます
-# 本番環境は .env.production を使用します
-
-# 初回のみ: 定番gemを含むRailsアプリケーションを作成
-make init
-
-# コンテナ起動
-make up
-```
-
-**`make init` で追加される定番gem:**
-- `mini_racer`: Node.js不要のV8エンジン
-- `pry-rails`: デバッグREPL（development）
-- `rspec-rails`, `factory_bot_rails`, `faker`: テスト関連（development, test）
-- Rails 8にはデフォルトで `rubocop-rails-omakase` が含まれます
-
-#### ECサイト開発（Solidus）の場合
-
-```bash
-# リポジトリをクローン
-git clone https://github.com/zomians/rails_boilerplate.git
-cd rails_boilerplate
-
-# 環境変数の確認・調整
-# .env.development を編集して Ruby/Rails/Postgres バージョンやDB設定を変更できます
-# 本番環境は .env.production を使用します
-
-# 初回のみ: Solidus専用Railsアプリケーションを作成
-make init-ec
-
-# コンテナ起動
-make up
-
-# 管理画面にアクセス
-# http://localhost:3000/admin
-# ログイン: admin@example.com / test123
-```
-
-**`make init-ec` で行われる処理:**
-- Rails newの実行（Solidus用に最適化）
-- Sprockets用のmanifest.js作成
-- `mini_racer`の追加
-- Solidus gemの追加とインストール
-- データベースマイグレーション
-- サンプルデータのロード
-
-**重要:** `make init` と `make init-ec` は独立した処理です。どちらか一方のみを実行してください。
-
-### よく使うコマンド
-
-#### 開発環境
-
-```bash
-# コンテナ起動
-make up
-
-# app コンテナに入る
-make bash
-
-# サービス状態確認
-docker compose --env-file .env.development ps
-
-# 利用可能なコマンド一覧を表示
-make help
-```
-
-#### 本番環境
-
-```bash
-# 本番環境を起動
-make prod-up
-
-# 本番環境を停止
-make prod-down
-
-# 本番環境のログを表示
-make prod-logs
-
-# 本番環境のappコンテナに入る
-make prod-bash
-
-# 本番環境のコンテナ状態を表示
-make prod-ps
-
-# その他の本番環境コマンド
-make help  # 全コマンド確認
-```
-
-### 環境変数管理
-
-このプロジェクトでは、環境ごとに異なる環境変数ファイルを使用します。
-
-**ファイル構成:**
-- `.env.development`: 開発環境用（リポジトリにコミット済み、サンプル値含む）
-- `.env.production`: 本番環境用（リポジトリにコミット済み、サンプル値含む）
-
-**設計方針:**
-- `.env` ファイルは使用しない
-- `--env-file` オプションで環境ファイルを明示的に指定
-- Makefile の `include` は使用しない（環境変数の競合を防ぐため）
-
-**メリット:**
-- 使用する環境が明示的で、誤った環境での実行を防げる
-- 環境ファイルのコピー不要
-- 開発環境と本番環境の設定が混在しない
-
-**重要:** 本番環境では `.env.production` の以下の値を必ず変更してください：
-- `SECRET_KEY_BASE`
-- `POSTGRES_PASSWORD`
-
----
-
-## 本番環境デプロイ
-
-このプロジェクトは Docker Compose を使用した本番環境デプロイをサポートしています。
-
-### 構成ファイル
-
-| ファイル | 用途 |
-|---------|------|
-| `compose.production.yaml` | 本番環境用 Docker Compose 設定 |
-| `.env.production` | 本番環境用環境変数（SECRET_KEY_BASE等を要変更） |
-| `Dockerfile.app` | 本番ステージを含むマルチステージビルド |
-
-### VPSへのデプロイ手順
-
-#### 1. VPS上での初回セットアップ
-
-```bash
-# VPSにSSH接続
-ssh user@your-vps-ip
-
-# リポジトリをclone
-git clone https://github.com/zomians/rails_boilerplate.git
-cd rails_boilerplate
-
-# .env.productionを編集（SECRET_KEY_BASE等を設定）
-vi .env.production
-```
-
-**必須設定項目:**
-- `SECRET_KEY_BASE`: `docker compose -f compose.production.yaml run --rm app bundle exec rails secret` で生成
-- `POSTGRES_PASSWORD`: ランダムな強力なパスワードに変更
-
-#### 2. 本番環境の起動
-
-```bash
-# イメージをビルド
-make prod-build
-
-# 本番環境を起動
-make prod-up
-
-# データベースをセットアップ
-make prod-db-setup
-```
-
-#### 3. 確認
-
-アプリケーション: `http://your-vps-ip:3000`
-
-### 更新デプロイ
-
-コードを更新した場合の手順：
-
-```bash
-# VPS上で
-git pull origin main
-
-# イメージを再ビルド
-make prod-build
-
-# 本番環境を再起動
-make prod-restart
-```
-
-### 本番環境の操作コマンド
-
-Makefile に以下のコマンドが用意されています：
-
-| コマンド | 説明 |
-|---------|------|
-| `make prod-up` | 本番環境を起動 |
-| `make prod-down` | 本番環境を停止 |
-| `make prod-build` | 本番環境のイメージをビルド |
-| `make prod-restart` | 本番環境を再起動 |
-| `make prod-logs` | ログを表示 |
-| `make prod-bash` | appコンテナに入る |
-| `make prod-ps` | コンテナ状態を表示 |
-| `make prod-db-setup` | データベースをセットアップ |
-| `make prod-db-reset` | データベースをリセット（要確認） |
-
-**注意:** `make prod-db-reset` は全データを削除するため、実行時に確認が求められます。
-
-### トラブルシューティング
-
-#### コンテナが起動しない
-
-```bash
-# ログを確認
-make prod-logs
-
-# コンテナ状態を確認
-make prod-ps
-
-# クリーンアップして再起動
-make prod-down
-make prod-build
-make prod-up
-```
-
-#### データベース接続エラー
-
-```bash
-# データベースコンテナの状態を確認
-make prod-ps
-
-# データベースを再セットアップ
-make prod-db-reset  # 注意: 全データ削除
-make prod-db-setup
-```
 
 ---
 
@@ -825,16 +584,6 @@ RSpec.describe User, type: :model do
 end
 ```
 
-### RSpec セットアップ（初回）
-
-```bash
-# Gemfile に追加
-# gem 'rspec-rails', group: [:development, :test]
-
-bundle install
-rails generate rspec:install
-```
-
 ---
 
 ## コードレビュー基準
@@ -955,25 +704,6 @@ def update
   @post = Post.find(params[:id])  # ❌
   @post.update(post_params)
 end
-```
-
----
-
-## トラブルシューティング
-
-### コンテナ起動に失敗する
-
-```bash
-# クリーンアップ後に再起動
-docker compose down -v
-docker compose up -d
-```
-
-### 依存インストールに失敗する
-
-```bash
-# ボリューム削除後に再ビルド
-docker compose build --no-cache
 ```
 
 ---
