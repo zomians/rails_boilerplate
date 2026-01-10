@@ -29,12 +29,36 @@ init-ec: ## Solidus専用Railsアプリケーションを作成（ECサイト開
 	@echo "📦 Solidus専用Railsアプリケーションを作成します..."
 	@set -a && . ./.env.development && set +a && \
 	docker compose --env-file .env.development run --rm --workdir /app app \
-	rails new . --name $$APP_NAME --database=postgresql --javascript=importmap --force
+	rails new . --name $$APP_NAME --database=postgresql --javascript=importmap --skip-asset-pipeline --force
 	@echo "✅ Rails アプリケーションを作成しました"
+	@echo "🔧 アセットパイプラインをSprocketsに設定します..."
+	docker compose --env-file .env.development run --rm --workdir /app app bundle add sprockets-rails
+	@echo "✅ sprockets-railsを追加しました"
 	@echo "📄 Sprockets用のmanifest.jsを作成します..."
 	@mkdir -p app/assets/config
-	@printf "//= link_tree ../images\n//= link_directory ../stylesheets .css\n//= link_directory ../javascripts .js\n" > app/assets/config/manifest.js
+	@printf '%s\n' \
+		'//= link_tree ../images' \
+		'//= link_directory ../stylesheets .css' \
+		'//= link_directory ../javascripts .js' \
+		> app/assets/config/manifest.js
 	@echo "✅ manifest.jsを作成しました"
+	@echo "📄 assets initializerを作成します..."
+	@mkdir -p config/initializers
+	@printf '%s\n' \
+		'# Be sure to restart your server when you modify this file.' \
+		'' \
+		'# Version of your assets, change this if you want to expire all your assets.' \
+		'Rails.application.config.assets.version = "1.0"' \
+		'' \
+		'# Add additional assets to the asset load path.' \
+		'# Rails.application.config.assets.paths << Emoji.images_path' \
+		'' \
+		'# Precompile additional assets.' \
+		'# application.js, application.css, and all non-JS/CSS in the app/assets' \
+		'# folder are already added.' \
+		'# Rails.application.config.assets.precompile += %w( admin.js admin.css )' \
+		> config/initializers/assets.rb
+	@echo "✅ assets.rbを作成しました"
 	@echo "📦 mini_racerを追加します..."
 	docker compose --env-file .env.development run --rm --workdir /app app bundle add mini_racer
 	@echo "📦 Solidusをセットアップします..."

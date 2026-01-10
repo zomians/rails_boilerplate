@@ -128,12 +128,13 @@ make up
 ```
 
 **`make init-ec` で行われる処理:**
-- Rails newの実行（Solidus用に最適化）
-- Sprockets用のmanifest.js作成
-- `mini_racer`の追加
+- Rails newの実行（`--skip-asset-pipeline` で Propshaft を除外）
+- Sprockets有効化（`sprockets-rails` gemを追加）
+- Sprockets用の `manifest.js` と `assets.rb` を作成
+- `mini_racer`の追加（JavaScript実行エンジン）
 - Solidus gemの追加とインストール
-- データベースマイグレーション
-- サンプルデータのロード
+- データベースマイグレーションとサンプルデータのロード
+- Procfile.devの調整（Docker環境用に `-b 0.0.0.0` を追加）
 
 **重要:** `make init` と `make init-ec` は独立した処理です。どちらか一方のみを実行してください。
 
