@@ -73,6 +73,9 @@ make up
 # コンテナ起動
 make up
 
+# コンテナ停止
+make down
+
 # コンテナに入る
 make bash
 
