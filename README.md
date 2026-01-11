@@ -233,6 +233,9 @@ make up
 # コンテナ起動
 make up
 
+# コンテナ停止
+make down
+
 # app コンテナに入る
 make bash
 
@@ -242,9 +245,6 @@ docker compose --env-file .env.development ps
 # ログ表示
 docker compose --env-file .env.development logs app
 docker compose --env-file .env.development logs db
-
-# コンテナ停止
-docker compose --env-file .env.development down
 
 # 利用可能なコマンド一覧を表示
 make help
