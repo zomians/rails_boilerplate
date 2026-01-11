@@ -483,8 +483,3 @@ docker compose --env-file .env.development exec app bash
 
 このプロジェクトはMITライセンスの下で公開されています。
 
----
-
-## 貢献
-
-貢献を歓迎します。Issue作成やPull Requestの詳細は [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。
