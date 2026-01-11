@@ -18,10 +18,24 @@ init: ## 定番gemを含むRailsアプリケーションを作成（通常開発
 	fi
 	@echo "📦 定番gemを追加します..."
 	docker compose --env-file .env.development run --rm --workdir /app app \
-	bash -c "bundle add mini_racer && \
+	bash -c "bundle add mini_racer stripe && \
 	bundle add pry-rails --group development && \
 	bundle add rspec-rails factory_bot_rails faker --group 'development,test'"
 	@echo "✅ 定番gemを追加しました"
+	@echo "📄 Stripe initializerを作成します..."
+	@mkdir -p config/initializers
+	@printf '%s\n' \
+		'# Stripe configuration' \
+		'# API keys are loaded from environment variables' \
+		'' \
+		'Rails.configuration.stripe = {' \
+		"  publishable_key: ENV['STRIPE_PUBLISHABLE_KEY']," \
+		"  secret_key: ENV['STRIPE_SECRET_KEY']" \
+		'}' \
+		'' \
+		'Stripe.api_key = Rails.configuration.stripe[:secret_key]' \
+		> config/initializers/stripe.rb
+	@echo "✅ Stripe initializerを作成しました"
 	@echo "🎉 セットアップ完了！ 次のコマンド: make up"
 
 .PHONY: init-ec

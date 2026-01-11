@@ -102,9 +102,15 @@ make up
 
 **`make init` で追加される定番gem:**
 - `mini_racer`: Node.js不要のV8エンジン
+- `stripe`: 決済処理
 - `pry-rails`: デバッグREPL（development）
 - `rspec-rails`, `factory_bot_rails`, `faker`: テスト関連（development, test）
 - Rails 8にはデフォルトで `rubocop-rails-omakase` が含まれます
+
+**Stripeの初期設定:**
+- `config/initializers/stripe.rb` が自動作成されます
+- `.env.development` にサンプルのAPIキーが含まれています
+- 実際に使用する場合は、[Stripe Dashboard](https://dashboard.stripe.com/test/apikeys) から取得したAPIキーに置き換えてください
 
 #### ECサイト開発（Solidus）の場合
 
