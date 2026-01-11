@@ -98,6 +98,11 @@ up: ## コンテナを起動
 	docker compose --env-file .env.development up -d
 	@echo "アプリケーションが起動しました: http://localhost:3000"
 
+.PHONY: down
+down: ## コンテナを停止
+	docker compose --env-file .env.development down --remove-orphans
+	@echo "✅ コンテナを停止しました"
+
 .PHONY: bash
 bash: ## app コンテナに入る
 	docker compose --env-file .env.development exec app bash
