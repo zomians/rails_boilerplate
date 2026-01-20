@@ -583,34 +583,141 @@ Squash and merge ▼
 
 ### Rails
 
-- ビジネスロジックは Service Object に抽出する
-- 変更が広がる場合は Decorator / Concern を検討する
-- RuboCop などの静的解析がある場合は準拠する
+#### 1. Service Object パターン
 
-### Ruby
+複雑なビジネスロジックは Service Object に抽出：
 
-- 1メソッド1責務を意識
-- 早期 return でネストを浅く
+```ruby
+# app/services/order_service.rb
+class OrderService
+  def initialize(order:)
+    @order = order
+  end
+
+  def call
+    # ビジネスロジック
+  end
+end
+```
+
+#### 2. 早期リターン
+
+条件分岐はネストを避け、早期リターンを使用：
+
+```ruby
+# ✅ GOOD: 早期リターン
+def process(order)
+  return if order.nil?
+  return unless order.valid?
+
+  order.save
+end
+
+# ❌ BAD: ネストが深い
+def process(order)
+  if order.present?
+    if order.valid?
+      order.save
+    end
+  end
+end
+```
+
+#### 3. RuboCop 準拠
+
+```bash
+# チェック
+bundle exec rubocop
+
+# 自動修正
+bundle exec rubocop -a
+```
+
+### データベース
+
+#### 1. マイグレーション命名規則
+
+```ruby
+# タイムスタンプ_動詞_対象_詳細.rb
+20251206_add_phone_number_to_users.rb
+20251206_create_orders.rb
+20251206_add_index_to_products_category_id.rb
+```
+
+#### 2. ロールバック可能性
+
+すべてのマイグレーションは `down` メソッドを実装：
+
+```ruby
+class AddPhoneNumberToUsers < ActiveRecord::Migration[8.0]
+  def up
+    add_column :users, :phone_number, :string
+  end
+
+  def down
+    remove_column :users, :phone_number
+  end
+end
+```
+
+#### 3. カラムコメント必須
+
+```ruby
+add_column :products, :category, :string, comment: "商品カテゴリ"
+add_column :products, :price, :decimal, comment: "価格（税抜）"
+```
 
 ---
 
 ## テスト方針
 
-- 新機能・修正にはテストを追加する
-- RSpec を標準テストフレームワークとして扱う
+### RSpec 必須
 
-例:
+すべての新機能・修正にはテストを追加してください。
+
+#### モデルテスト
 
 ```ruby
-# spec/models/user_spec.rb
+# spec/models/product_spec.rb
 require 'rails_helper'
 
-RSpec.describe User, type: :model do
-  it 'is valid with a name' do
-    user = build(:user, name: 'Alice')
-    expect(user).to be_valid
+RSpec.describe Product, type: :model do
+  describe '#active?' do
+    it 'ステータスがactiveの場合trueを返す' do
+      product = build(:product, status: 'active')
+      expect(product.active?).to be true
+    end
   end
 end
+```
+
+#### API テスト（Request Spec）
+
+```ruby
+# spec/requests/api/v1/orders_spec.rb
+require 'rails_helper'
+
+RSpec.describe 'Api::V1::Orders', type: :request do
+  describe 'GET /api/v1/orders' do
+    it '注文一覧を返す' do
+      get '/api/v1/orders'
+      expect(response).to have_http_status(:ok)
+    end
+  end
+end
+```
+
+### テスト実行
+
+```bash
+# 全テスト実行
+bundle exec rspec
+
+# 特定ファイルのみ
+bundle exec rspec spec/models/product_spec.rb
+
+# カバレッジ確認
+bundle exec rspec --format documentation
 ```
 
 ---
@@ -733,6 +840,32 @@ def update
   @post = Post.find(params[:id])  # ❌
   @post.update(post_params)
 end
+```
+
+### パフォーマンスチェック
+
+#### 1. N+1 クエリ回避
+
+**✅ DO: eager loading 使用**
+```ruby
+# 良い例
+@products = Product.includes(:images, :variants).all
+```
+
+**❌ DON'T: N+1発生**
+```ruby
+# 悪い例
+@products = Product.all
+@products.each { |p| p.images.first }  # N+1！
+```
+
+#### 2. インデックス追加
+
+頻繁に検索するカラムにはインデックス：
+
+```ruby
+add_index :products, :category_id
+add_index :orders, [:user_id, :created_at]
 ```
 
 ---
