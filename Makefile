@@ -20,7 +20,7 @@ init: ## 定番gemを含むRailsアプリケーションを作成（通常開発
 	fi
 	@echo "📦 定番gemを追加します..."
 	docker compose --env-file .env.development run --rm --workdir /app app \
-	bash -c "bundle add mini_racer stripe && \
+	bash -c "bundle add mini_racer stripe devise kaminari rack-cors && \
 	bundle add pry-rails --group development && \
 	bundle add rspec-rails factory_bot_rails faker --group 'development,test'"
 	@echo "✅ 定番gemを追加しました"
@@ -38,6 +38,22 @@ init: ## 定番gemを含むRailsアプリケーションを作成（通常開発
 		'Stripe.api_key = Rails.configuration.stripe[:secret_key]' \
 		> config/initializers/stripe.rb
 	@echo "✅ Stripe initializerを作成しました"
+	@echo "📄 CORS initializerを作成します..."
+	@printf '%s\n' \
+		'# CORS configuration' \
+		'# Adjust origins for your production environment' \
+		'' \
+		'Rails.application.config.middleware.insert_before 0, Rack::Cors do' \
+		'  allow do' \
+		'    origins "http://localhost:3000"' \
+		'' \
+		'    resource "*",' \
+		'      headers: :any,' \
+		'      methods: [:get, :post, :put, :patch, :delete, :options, :head]' \
+		'  end' \
+		'end' \
+		> config/initializers/cors.rb
+	@echo "✅ CORS initializerを作成しました"
 	@echo "🎉 セットアップ完了！ 次のコマンド: make up"
 
 .PHONY: init-ec
