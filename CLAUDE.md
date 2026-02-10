@@ -162,11 +162,18 @@ bundle exec rspec
 
 ### Docker構成
 
+**開発環境:**
 ```
-app (Rails) → db (PostgreSQL)
+app (Rails, :3000) → db (PostgreSQL, :5432)
 ```
 
-- **app**: ポート3000、カレントディレクトリをマウント
+**本番環境:**
+```
+caddy (:80/:443, SSL自動) → app (Rails, :3000 内部のみ) → db (PostgreSQL, :5432 内部のみ)
+```
+
+- **caddy**: リバースプロキシ、Let's EncryptでSSL自動化
+- **app**: ポート3000（本番では内部のみ）
 - **db**: ポート5432、postgres_dataボリュームで永続化
 
 ### 環境変数管理
