@@ -176,7 +176,7 @@ make up
 
 このプロジェクトは**マルチコンテナDocker構成**を採用しています。
 
-#### サービス構成
+#### 開発環境サービス構成
 
 ```
 ┌─────────────────────────────────────┐
@@ -189,6 +189,33 @@ make up
 ┌─────────────────────────────────────┐
 │  db (PostgreSQL)                    │
 │  - ポート: 5432                      │
+│  - ボリューム: postgres_data         │
+│  - ヘルスチェック有効                │
+└─────────────────────────────────────┘
+```
+
+#### 本番環境サービス構成
+
+```
+Internet
+    ↓
+┌─────────────────────────────────────┐
+│  caddy (リバースプロキシ)            │
+│  - ポート: 80/443                    │
+│  - SSL自動（Let's Encrypt）          │
+│  - HTTP→HTTPSリダイレクト自動        │
+│  - ボリューム: caddy_data            │
+└─────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────┐
+│  app (Rails アプリケーション)         │
+│  - ポート: 3000（内部のみ）          │
+│  - 依存: db サービス                 │
+└─────────────────────────────────────┘
+              ↓
+┌─────────────────────────────────────┐
+│  db (PostgreSQL)                    │
+│  - ポート: 5432（内部のみ）          │
 │  - ボリューム: postgres_data         │
 │  - ヘルスチェック有効                │
 └─────────────────────────────────────┘
@@ -243,6 +270,7 @@ make up
 **本番環境用追加環境変数（.env.production）:**
 - `SECRET_KEY_BASE`: Rails secret key（**必ず変更**）
 - `POSTGRES_PASSWORD`: データベースパスワード（**必ず変更**）
+- `DOMAIN`: 本番環境のドメイン名（**必ず変更**、例: `example.com`）
 - `RAILS_ENV=production`
 - `RAILS_LOG_TO_STDOUT=true`
 - `RAILS_SERVE_STATIC_FILES=true`
@@ -347,10 +375,25 @@ make help  # 全コマンド確認
 | ファイル | 用途 |
 |---------|------|
 | `compose.production.yaml` | 本番環境用 Docker Compose 設定 |
+| `Caddyfile` | Caddy リバースプロキシ設定（SSL自動化） |
 | `.env.production` | 本番環境用環境変数（SECRET_KEY_BASE等を要変更） |
 | `Dockerfile.app` | 本番ステージを含むマルチステージビルド |
 
+### SSL/TLS（HTTPS）
+
+本番環境では [Caddy](https://caddyserver.com/) をリバースプロキシとして使用し、Let's Encrypt による SSL/TLS 証明書の取得・更新を自動化しています。
+
+- 証明書の取得・更新は完全自動（手動操作不要）
+- HTTP→HTTPS リダイレクトも自動
+- HTTP/3（QUIC）対応
+
 ### VPSへのデプロイ手順
+
+#### 前提条件
+
+- VPSにDockerとDocker Composeがインストール済み
+- ドメインのDNS AレコードがVPSのIPアドレスに設定済み
+- ポート80/443がファイアウォールで開放済み
 
 #### 1. VPS上での初回セットアップ
 
@@ -362,13 +405,14 @@ ssh user@your-vps-ip
 git clone https://github.com/zomians/rails_boilerplate.git
 cd rails_boilerplate
 
-# .env.productionを編集（SECRET_KEY_BASE等を設定）
+# .env.productionを編集
 vi .env.production
 ```
 
 **必須設定項目:**
 - `SECRET_KEY_BASE`: `docker compose -f compose.production.yaml run --rm app bundle exec rails secret` で生成
 - `POSTGRES_PASSWORD`: ランダムな強力なパスワードに変更
+- `DOMAIN`: 本番環境のドメイン名（例: `example.com`）
 
 #### 2. 本番環境の起動
 
@@ -385,7 +429,9 @@ make prod-db-setup
 
 #### 3. 確認
 
-アプリケーション: `http://your-vps-ip:3000`
+アプリケーション: `https://yourdomain.com`
+
+Caddy が自動的に Let's Encrypt から SSL 証明書を取得します。初回アクセス時に数秒かかる場合があります。
 
 ### 更新デプロイ
 
@@ -410,6 +456,7 @@ make prod-restart
 .
 ├── .env.development          # 開発環境用環境変数（コミット済み）
 ├── .env.production           # 本番環境用環境変数テンプレート（コミット済み）
+├── Caddyfile                 # Caddy リバースプロキシ設定（本番環境用）
 ├── compose.yaml              # 開発環境用 Docker Compose 設定
 ├── compose.production.yaml   # 本番環境用 Docker Compose 設定
 ├── Dockerfile.app            # Appコンテナ定義（マルチステージビルド）
