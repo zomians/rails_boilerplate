@@ -255,7 +255,6 @@ Internet
 
 #### 設計方針
 
-- `.env` ファイルは使用しない
 - `--env-file` オプションで環境ファイルを明示的に指定
 - 開発環境: `docker compose -f compose.development.yaml --env-file .env.development`
 - 本番環境: `docker compose -f compose.production.yaml --env-file .env.production`
@@ -273,14 +272,12 @@ Internet
 - `RUBY_VERSION`: Ruby version (default: 3.3.6)
 - `RAILS_VERSION`: Rails version (default: 8.0.4)
 - `POSTGRES_VERSION`: PostgreSQL version (default: 16-bookworm)
-- `APP_NAME`: Application name
 - `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: Database credentials
 - `DATABASE_URL`: PostgreSQL connection URL (auto-generated)
 
 **本番環境用追加環境変数（.env.production）:**
 - `SECRET_KEY_BASE`: Rails secret key（**必ず変更**）
 - `POSTGRES_PASSWORD`: データベースパスワード（**必ず変更**）
-- `DOMAIN`: 本番環境のドメイン名（**必ず変更**、例: `example.com`）
 - `RAILS_ENV=production`
 - `RAILS_LOG_TO_STDOUT=true`
 - `RAILS_SERVE_STATIC_FILES=true`
@@ -414,7 +411,7 @@ make help  # 全コマンド確認
 
 ```bash
 # VPSにSSH接続
-ssh user@your-vps-ip
+ssh devuser@your-vps-ip
 
 # リポジトリをclone
 git clone https://github.com/zomians/rails_boilerplate.git
