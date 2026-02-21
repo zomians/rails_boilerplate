@@ -228,7 +228,8 @@ Internet
 
 **構成ファイル:**
 - `reverse-proxy/compose.yaml` + `reverse-proxy/Caddyfile`: リバースプロキシ（独立管理）
-- `compose.production.yaml` + `.env.production`: アプリケーション + DB
+- `compose.development.yaml` + `.env.development`: 開発環境（app + db）
+- `compose.production.yaml` + `.env.production`: 本番環境（app + db）
 
 #### 1. app サービス（`Dockerfile.app`）
 
@@ -256,7 +257,7 @@ Internet
 
 - `.env` ファイルは使用しない
 - `--env-file` オプションで環境ファイルを明示的に指定
-- 開発環境: `docker compose --env-file .env.development`
+- 開発環境: `docker compose -f compose.development.yaml --env-file .env.development`
 - 本番環境: `docker compose -f compose.production.yaml --env-file .env.production`
 
 #### メリット
@@ -301,11 +302,11 @@ make down
 make bash
 
 # サービス状態確認
-docker compose --env-file .env.development ps
+docker compose -f compose.development.yaml --env-file .env.development ps
 
 # ログ表示
-docker compose --env-file .env.development logs app
-docker compose --env-file .env.development logs db
+docker compose -f compose.development.yaml --env-file .env.development logs app
+docker compose -f compose.development.yaml --env-file .env.development logs db
 
 # 利用可能なコマンド一覧を表示
 make help
@@ -336,7 +337,7 @@ rails server
 
 ```bash
 # コンテナを再ビルド（Dockerfileや依存関係変更後）
-docker compose --env-file .env.development build --no-cache
+docker compose -f compose.development.yaml --env-file .env.development build --no-cache
 
 # このプロジェクトのDocker関連をクリーン（公式イメージは保持）
 make clean
@@ -479,7 +480,7 @@ make prod-deploy
 ├── reverse-proxy/            # リバースプロキシ（独立管理）
 │   ├── compose.yaml          # Caddy用 Docker Compose 設定
 │   └── Caddyfile             # Caddy リバースプロキシ設定
-├── compose.yaml              # 開発環境用 Docker Compose 設定
+├── compose.development.yaml  # 開発環境用 Docker Compose 設定
 ├── compose.production.yaml   # 本番環境用 Docker Compose 設定（app + db）
 ├── Dockerfile.app            # Appコンテナ定義（マルチステージビルド）
 ├── Makefile                  # 開発ショートカット
@@ -498,17 +499,17 @@ make prod-deploy
 
 ```bash
 # クリーンアップ後に再起動
-docker compose --env-file .env.development down -v
-docker compose --env-file .env.development up -d
+docker compose -f compose.development.yaml --env-file .env.development down -v
+docker compose -f compose.development.yaml --env-file .env.development up -d
 ```
 
 ### 依存関係のインストールに失敗する
 
 ```bash
 # ボリューム削除後に再ビルド
-docker compose --env-file .env.development down -v
-docker compose --env-file .env.development build --no-cache
-docker compose --env-file .env.development up -d
+docker compose -f compose.development.yaml --env-file .env.development down -v
+docker compose -f compose.development.yaml --env-file .env.development build --no-cache
+docker compose -f compose.development.yaml --env-file .env.development up -d
 ```
 
 ### データベース関連の問題
@@ -563,14 +564,14 @@ make prod-db-reset
 # 使用中のプロセスを確認
 lsof -i :3000
 
-# プロセスを停止するか、compose.yamlでポートを変更
+# プロセスを停止するか、compose.development.yamlでポートを変更
 ```
 
 **Q: make コマンドが使えない**
 ```bash
 # makeがインストールされていない場合、直接docker composeコマンドを使用
-docker compose --env-file .env.development up -d
-docker compose --env-file .env.development exec app bash
+docker compose -f compose.development.yaml --env-file .env.development up -d
+docker compose -f compose.development.yaml --env-file .env.development exec app bash
 ```
 
 ---
