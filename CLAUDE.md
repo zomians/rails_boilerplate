@@ -180,7 +180,7 @@ caddy (reverse-proxy/, :80/:443) →[web-proxy-net]→ app (:3000) →[internal]
 
 - 開発環境: `.env.development`（コミット済み）
 - 本番環境: `.env.production`（コミット済み、要編集）
-- `--env-file` で明示的に指定する設計
+- `-f` + `--env-file` で明示的に指定する設計
 
 詳細は [README.md のアーキテクチャセクション](README.md#アーキテクチャ) を参照してください。
 
@@ -194,13 +194,13 @@ caddy (reverse-proxy/, :80/:443) →[web-proxy-net]→ app (:3000) →[internal]
 
 **コンテナ起動失敗:**
 ```bash
-docker compose --env-file .env.development down -v
-docker compose --env-file .env.development up -d
+docker compose -f compose.development.yaml --env-file .env.development down -v
+docker compose -f compose.development.yaml --env-file .env.development up -d
 ```
 
 **依存関係の問題:**
 ```bash
-docker compose --env-file .env.development build --no-cache
+docker compose -f compose.development.yaml --env-file .env.development build --no-cache
 ```
 
 **データベースの問題:**

@@ -7,7 +7,7 @@ init: ## 定番gemを含むRailsアプリケーションを作成（通常開発
 	@echo "📦 Railsアプリケーションを作成します..."
 	@[ -f README.md ] && cp README.md README.md.bak || true
 	@set -a && . ./.env.development && set +a && \
-	docker compose --env-file .env.development run --rm --workdir /app app \
+	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app app \
 	rails new . --name $$APP_NAME --database=postgresql --css=tailwind --javascript=importmap --skip-test --force
 	@[ -f README.md.bak ] && mv README.md.bak README.md || true
 	@echo "✅ Rails アプリケーションを作成しました"
@@ -19,7 +19,7 @@ init: ## 定番gemを含むRailsアプリケーションを作成（通常開発
 		fi \
 	fi
 	@echo "📦 定番gemを追加します..."
-	docker compose --env-file .env.development run --rm --workdir /app app \
+	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app app \
 	bash -c "bundle add mini_racer stripe devise kaminari rack-cors && \
 	bundle add pry-rails --group development && \
 	bundle add rspec-rails factory_bot_rails faker --group 'development,test'"
@@ -61,12 +61,12 @@ init-ec: ## Solidus専用Railsアプリケーションを作成（ECサイト開
 	@echo "📦 Solidus専用Railsアプリケーションを作成します..."
 	@[ -f README.md ] && cp README.md README.md.bak || true
 	@set -a && . ./.env.development && set +a && \
-	docker compose --env-file .env.development run --rm --workdir /app app \
+	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app app \
 	rails new . --name $$APP_NAME --database=postgresql --javascript=importmap --skip-asset-pipeline --force
 	@[ -f README.md.bak ] && mv README.md.bak README.md || true
 	@echo "✅ Rails アプリケーションを作成しました"
 	@echo "🔧 アセットパイプラインをSprocketsに設定します..."
-	docker compose --env-file .env.development run --rm --workdir /app app bundle add sprockets-rails
+	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app app bundle add sprockets-rails
 	@echo "✅ sprockets-railsを追加しました"
 	@echo "📄 Sprockets用のmanifest.jsを作成します..."
 	@mkdir -p app/assets/config
@@ -94,9 +94,9 @@ init-ec: ## Solidus専用Railsアプリケーションを作成（ECサイト開
 		> config/initializers/assets.rb
 	@echo "✅ assets.rbを作成しました"
 	@echo "📦 mini_racerを追加します..."
-	docker compose --env-file .env.development run --rm --workdir /app app bundle add mini_racer
+	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app app bundle add mini_racer
 	@echo "📦 Solidusをセットアップします..."
-	docker compose --env-file .env.development run --rm --workdir /app app \
+	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app app \
 	bash -c "bundle add solidus && \
 	rails generate solidus:install --auto-accept && \
 	bundle install && \
@@ -115,21 +115,21 @@ init-ec: ## Solidus専用Railsアプリケーションを作成（ECサイト開
 
 .PHONY: up
 up: ## コンテナを起動
-	docker compose --env-file .env.development up -d
+	docker compose -f compose.development.yaml --env-file .env.development up -d
 	@echo "アプリケーションが起動しました: http://localhost:3000"
 
 .PHONY: down
 down: ## コンテナを停止
-	docker compose --env-file .env.development down --remove-orphans
+	docker compose -f compose.development.yaml --env-file .env.development down --remove-orphans
 	@echo "✅ コンテナを停止しました"
 
 .PHONY: bash
 bash: ## app コンテナに入る
-	docker compose --env-file .env.development exec app bash
+	docker compose -f compose.development.yaml --env-file .env.development exec app bash
 
 .PHONY: clean
 clean: ## このプロジェクトのDocker関連をクリーン（公式イメージは保持）
-	docker compose --env-file .env.development down -v --rmi local
+	docker compose -f compose.development.yaml --env-file .env.development down -v --rmi local
 
 # ==============================================
 # リバースプロキシ用コマンド
