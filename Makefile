@@ -6,9 +6,8 @@ help: ## ヘルプを表示
 init: ## 定番gemを含むRailsアプリケーションを作成（通常開発用）
 	@echo "📦 Railsアプリケーションを作成します..."
 	@[ -f README.md ] && cp README.md README.md.bak || true
-	@set -a && . ./.env.development && set +a && \
 	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app app \
-	rails new . --name $$APP_NAME --database=postgresql --css=tailwind --javascript=importmap --skip-test --force
+	rails new . --name railsapp --database=postgresql --css=tailwind --javascript=importmap --skip-test --force
 	@[ -f README.md.bak ] && mv README.md.bak README.md || true
 	@echo "✅ Rails アプリケーションを作成しました"
 	@echo "⚙️  Procfile.devをDocker環境用に調整します..."
@@ -60,9 +59,8 @@ init: ## 定番gemを含むRailsアプリケーションを作成（通常開発
 init-ec: ## Solidus専用Railsアプリケーションを作成（ECサイト開発用）
 	@echo "📦 Solidus専用Railsアプリケーションを作成します..."
 	@[ -f README.md ] && cp README.md README.md.bak || true
-	@set -a && . ./.env.development && set +a && \
 	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app app \
-	rails new . --name $$APP_NAME --database=postgresql --javascript=importmap --skip-asset-pipeline --force
+	rails new . --name railsapp --database=postgresql --javascript=importmap --skip-asset-pipeline --force
 	@[ -f README.md.bak ] && mv README.md.bak README.md || true
 	@echo "✅ Rails アプリケーションを作成しました"
 	@echo "🔧 アセットパイプラインをSprocketsに設定します..."
