@@ -167,14 +167,14 @@ bundle exec rspec
 app (Rails, :3000) → db (PostgreSQL, :5432)
 ```
 
-**本番環境:**
+**本番環境（リバースプロキシ独立構成）:**
 ```
-caddy (:80/:443, SSL自動) → app (Rails, :3000 内部のみ) → db (PostgreSQL, :5432 内部のみ)
+caddy (reverse-proxy/, :80/:443) →[web-proxy-net]→ app (:3000) →[internal]→ db (:5432)
 ```
 
-- **caddy**: リバースプロキシ、Let's EncryptでSSL自動化
-- **app**: ポート3000（本番では内部のみ）
-- **db**: ポート5432、postgres_dataボリュームで永続化
+- **caddy**: `reverse-proxy/` で独立管理、Let's EncryptでSSL自動化
+- **app**: ポート3000（internal + web-proxy-net）
+- **db**: ポート5432（internalのみ）、postgres_dataボリュームで永続化
 
 ### 環境変数管理
 
