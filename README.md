@@ -196,30 +196,39 @@ make up
 
 #### 本番環境サービス構成
 
+リバースプロキシはアプリケーションから独立した構成です。外部ネットワーク `web-proxy-net` を介して接続します。
+
 ```
 Internet
     ↓
 ┌─────────────────────────────────────┐
-│  caddy (リバースプロキシ)            │
+│  caddy (reverse-proxy/)             │  ← 独立管理
 │  - ポート: 80/443                    │
 │  - SSL自動（Let's Encrypt）          │
 │  - HTTP→HTTPSリダイレクト自動        │
-│  - ボリューム: caddy_data            │
+│  - ネットワーク: web-proxy-net       │
 └─────────────────────────────────────┘
-              ↓
+              ↓ web-proxy-net（外部ネットワーク）
 ┌─────────────────────────────────────┐
 │  app (Rails アプリケーション)         │
 │  - ポート: 3000（内部のみ）          │
+│  - ネットワーク: internal,           │
+│                  web-proxy-net       │
 │  - 依存: db サービス                 │
 └─────────────────────────────────────┘
-              ↓
+              ↓ internal
 ┌─────────────────────────────────────┐
 │  db (PostgreSQL)                    │
 │  - ポート: 5432（内部のみ）          │
+│  - ネットワーク: internal            │
 │  - ボリューム: postgres_data         │
 │  - ヘルスチェック有効                │
 └─────────────────────────────────────┘
 ```
+
+**構成ファイル:**
+- `reverse-proxy/compose.yaml` + `reverse-proxy/Caddyfile`: リバースプロキシ（独立管理）
+- `compose.production.yaml` + `.env.production`: アプリケーション + DB
 
 #### 1. app サービス（`Dockerfile.app`）
 
@@ -333,6 +342,22 @@ docker compose --env-file .env.development build --no-cache
 make clean
 ```
 
+### リバースプロキシ
+
+```bash
+# リバースプロキシを起動（web-proxy-netも自動作成）
+make proxy-up
+
+# リバースプロキシを停止
+make proxy-down
+
+# リバースプロキシのログを表示
+make proxy-logs
+
+# Caddyfile変更後に設定を再読み込み
+make proxy-reload
+```
+
 ### 本番環境
 
 ```bash
@@ -362,8 +387,9 @@ make help  # 全コマンド確認
 
 | ファイル | 用途 |
 |---------|------|
-| `compose.production.yaml` | 本番環境用 Docker Compose 設定 |
-| `Caddyfile` | Caddy リバースプロキシ設定（SSL自動化） |
+| `reverse-proxy/compose.yaml` | リバースプロキシ用 Docker Compose 設定 |
+| `reverse-proxy/Caddyfile` | Caddy リバースプロキシ設定（SSL自動化） |
+| `compose.production.yaml` | 本番環境用 Docker Compose 設定（app + db） |
 | `.env.production` | 本番環境用環境変数（SECRET_KEY_BASE等を要変更） |
 | `Dockerfile.app` | 本番ステージを含むマルチステージビルド |
 
@@ -379,7 +405,7 @@ make help  # 全コマンド確認
 
 #### 前提条件
 
-- VPSにDockerとDocker Composeがインストール済み
+- VPSにDockerとDocker Composeがインストール済み（[VPS初期セットアップ](docs/vps-setup.md) 参照）
 - ドメインのDNS AレコードがVPSのIPアドレスに設定済み
 - ポート80/443がファイアウォールで開放済み
 
@@ -400,21 +426,31 @@ vi .env.production
 **必須設定項目:**
 - `SECRET_KEY_BASE`: `docker compose -f compose.production.yaml run --rm app bundle exec rails secret` で生成
 - `POSTGRES_PASSWORD`: ランダムな強力なパスワードに変更
-- `DOMAIN`: 本番環境のドメイン名（例: `example.com`）
 
-#### 2. デプロイ
+#### 2. リバースプロキシの設定・起動
+
+```bash
+# Caddyfileにドメイン名を設定
+vi reverse-proxy/Caddyfile
+
+# リバースプロキシを起動（web-proxy-netネットワークも自動作成）
+make proxy-up
+```
+
+#### 3. アプリケーションのデプロイ
 
 ```bash
 make prod-deploy
 ```
 
 このコマンドで以下が一括実行されます:
-1. イメージをビルド（`--no-cache`）
-2. 既存コンテナを停止
-3. コンテナを起動
-4. データベースのセットアップ（`db:create db:migrate db:seed`）
+1. `web-proxy-net` ネットワークの確認・作成
+2. イメージをビルド（`--no-cache`）
+3. 既存コンテナを停止
+4. コンテナを起動
+5. データベースのセットアップ（`db:create db:migrate db:seed`）
 
-#### 3. 確認
+#### 4. 確認
 
 アプリケーション: `https://yourdomain.com`
 
@@ -428,7 +464,7 @@ Caddy が自動的に Let's Encrypt から SSL 証明書を取得します。初
 # VPS上で
 git pull origin main
 
-# デプロイ
+# アプリケーションのみ再デプロイ（リバースプロキシは停止しない）
 make prod-deploy
 ```
 
@@ -440,9 +476,11 @@ make prod-deploy
 .
 ├── .env.development          # 開発環境用環境変数（コミット済み）
 ├── .env.production           # 本番環境用環境変数テンプレート（コミット済み）
-├── Caddyfile                 # Caddy リバースプロキシ設定（本番環境用）
+├── reverse-proxy/            # リバースプロキシ（独立管理）
+│   ├── compose.yaml          # Caddy用 Docker Compose 設定
+│   └── Caddyfile             # Caddy リバースプロキシ設定
 ├── compose.yaml              # 開発環境用 Docker Compose 設定
-├── compose.production.yaml   # 本番環境用 Docker Compose 設定
+├── compose.production.yaml   # 本番環境用 Docker Compose 設定（app + db）
 ├── Dockerfile.app            # Appコンテナ定義（マルチステージビルド）
 ├── Makefile                  # 開発ショートカット
 ├── CONTRIBUTING.md           # 開発ガイドライン・ワークフロー

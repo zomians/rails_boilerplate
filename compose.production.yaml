@@ -12,6 +12,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - internal
     restart: unless-stopped
 
   app:
@@ -29,25 +31,15 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    restart: unless-stopped
-
-  caddy:
-    image: caddy:2
-    ports:
-      - "80:80"
-      - "443:443"
-      - "443:443/udp"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-    env_file:
-      - .env.production
-    depends_on:
-      - app
+    networks:
+      - internal
+      - web-proxy-net
     restart: unless-stopped
 
 volumes:
   postgres_data:
-  caddy_data:
-  caddy_config:
+
+networks:
+  internal:
+  web-proxy-net:
+    external: true
