@@ -61,7 +61,43 @@ chown -R devuser:devuser /home/devuser/.ssh
 chown -R devuser:devuser /srv
 ```
 
-### 6. SSH 秘密鍵のコピー
+### 6. リバースプロキシの配置
+
+リバースプロキシ（Caddy）は `/srv` 以下の複数プロジェクトで共有するため、プロジェクトとは独立して `/srv/reverse-proxy/` に配置します。
+
+```bash
+mkdir -p /srv/reverse-proxy
+```
+
+本リポジトリの `reverse-proxy/` 内のファイルを配置します。
+
+```bash
+scp reverse-proxy/compose.yaml devuser@<VPS_IP>:/srv/reverse-proxy/
+scp reverse-proxy/Caddyfile devuser@<VPS_IP>:/srv/reverse-proxy/
+```
+
+**Caddyfile のドメイン設定:**
+
+配置した `Caddyfile` の `yourdomain.com` を実際のドメインに変更してください。
+
+```bash
+vi /srv/reverse-proxy/Caddyfile
+```
+
+```
+example.com {
+	reverse_proxy app:3000
+}
+```
+
+**起動:**
+
+```bash
+docker network create web-proxy-net
+docker compose -f /srv/reverse-proxy/compose.yaml up -d
+```
+
+### 7. SSH 秘密鍵のコピー
 
 devuser が VPS 上から外部リポジトリ等にアクセスする場合に必要です。
 
