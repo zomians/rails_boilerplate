@@ -41,5 +41,6 @@ volumes:
 
 networks:
   internal:
+    internal: true
   web-proxy-net:
     external: true
