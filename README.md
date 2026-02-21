@@ -336,11 +336,8 @@ make clean
 ### 本番環境
 
 ```bash
-# 本番環境を起動
-make prod-up
-
-# 本番環境を停止
-make prod-down
+# 本番環境をデプロイ（ビルド→再作成→マイグレーション→シード）
+make prod-deploy
 
 # 本番環境のログを表示
 make prod-logs
@@ -350,15 +347,6 @@ make prod-bash
 
 # 本番環境のコンテナ状態を表示
 make prod-ps
-
-# イメージをビルド
-make prod-build
-
-# 本番環境を再起動
-make prod-restart
-
-# データベースをセットアップ
-make prod-db-setup
 
 # その他の本番環境コマンド
 make help  # 全コマンド確認
@@ -414,18 +402,17 @@ vi .env.production
 - `POSTGRES_PASSWORD`: ランダムな強力なパスワードに変更
 - `DOMAIN`: 本番環境のドメイン名（例: `example.com`）
 
-#### 2. 本番環境の起動
+#### 2. デプロイ
 
 ```bash
-# イメージをビルド
-make prod-build
-
-# 本番環境を起動
-make prod-up
-
-# データベースをセットアップ
-make prod-db-setup
+make prod-deploy
 ```
+
+このコマンドで以下が一括実行されます:
+1. イメージをビルド（`--no-cache`）
+2. 既存コンテナを停止
+3. コンテナを起動
+4. データベースのセットアップ（`db:create db:migrate db:seed`）
 
 #### 3. 確認
 
@@ -441,11 +428,8 @@ Caddy が自動的に Let's Encrypt から SSL 証明書を取得します。初
 # VPS上で
 git pull origin main
 
-# イメージを再ビルド
-make prod-build
-
-# 本番環境を再起動
-make prod-restart
+# デプロイ
+make prod-deploy
 ```
 
 ---
@@ -520,10 +504,8 @@ make prod-logs
 # コンテナ状態を確認
 make prod-ps
 
-# クリーンアップして再起動
-make prod-down
-make prod-build
-make prod-up
+# クリーンアップして再デプロイ
+make prod-deploy
 ```
 
 #### データベース接続エラー
@@ -532,9 +514,8 @@ make prod-up
 # データベースコンテナの状態を確認
 make prod-ps
 
-# データベースを再セットアップ（注意: 全データ削除）
+# データベースをリセット（注意: 全データ削除）
 make prod-db-reset
-make prod-db-setup
 ```
 
 ### よくある質問
