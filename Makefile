@@ -130,36 +130,11 @@ clean: ## このプロジェクトのDocker関連をクリーン（公式イメ�
 	docker compose -f compose.development.yaml --env-file .env.development down -v --rmi local
 
 # ==============================================
-# リバースプロキシ用コマンド
-# ==============================================
-
-.PHONY: proxy-up
-proxy-up: ## リバースプロキシを起動
-	docker network inspect web-proxy-net >/dev/null 2>&1 || docker network create web-proxy-net
-	docker compose -f reverse-proxy/compose.yaml up -d
-	@echo "✅ リバースプロキシを起動しました"
-
-.PHONY: proxy-down
-proxy-down: ## リバースプロキシを停止
-	docker compose -f reverse-proxy/compose.yaml down
-	@echo "✅ リバースプロキシを停止しました"
-
-.PHONY: proxy-logs
-proxy-logs: ## リバースプロキシのログを表示
-	docker compose -f reverse-proxy/compose.yaml logs -f
-
-.PHONY: proxy-reload
-proxy-reload: ## リバースプロキシの設定を再読み込み
-	docker compose -f reverse-proxy/compose.yaml exec caddy caddy reload --config /etc/caddy/Caddyfile
-	@echo "✅ Caddyfile を再読み込みしました"
-
-# ==============================================
 # 本番環境用コマンド
 # ==============================================
 
 .PHONY: prod-deploy
 prod-deploy: ## 本番環境をデプロイ（ビルド→再作成→マイグレーション→シード）
-	docker network inspect web-proxy-net >/dev/null 2>&1 || docker network create web-proxy-net
 	docker compose -f compose.production.yaml --env-file .env.production build --no-cache
 	docker compose -f compose.production.yaml --env-file .env.production down
 	docker compose -f compose.production.yaml --env-file .env.production up -d
