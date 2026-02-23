@@ -69,11 +69,10 @@ chown -R devuser:devuser /srv
 mkdir -p /srv/reverse-proxy
 ```
 
-本リポジトリの `reverse-proxy/` 内のファイルを配置します。
+本リポジトリの `reverse-proxy/` ディレクトリごとコピーします。
 
 ```bash
-scp reverse-proxy/compose.yaml devuser@<VPS_IP>:/srv/reverse-proxy/
-scp reverse-proxy/Caddyfile devuser@<VPS_IP>:/srv/reverse-proxy/
+scp -r reverse-proxy/ devuser@<VPS_IP>:/srv/reverse-proxy/
 ```
 
 **Caddyfile のドメイン設定:**
@@ -93,8 +92,8 @@ example.com {
 **起動:**
 
 ```bash
-docker network create web-proxy-net
-docker compose -f /srv/reverse-proxy/compose.yaml up -d
+cd /srv/reverse-proxy/
+make up
 ```
 
 ### 7. SSH 秘密鍵のコピー

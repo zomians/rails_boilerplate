@@ -342,18 +342,25 @@ make clean
 
 ### リバースプロキシ
 
+`reverse-proxy/` ディレクトリは自己完結しています。ディレクトリに移動して操作してください。
+
 ```bash
+cd reverse-proxy/
+
 # リバースプロキシを起動（web-proxy-netも自動作成）
-make proxy-up
+make up
 
 # リバースプロキシを停止
-make proxy-down
+make down
 
 # リバースプロキシのログを表示
-make proxy-logs
+make logs
 
 # Caddyfile変更後に設定を再読み込み
-make proxy-reload
+make reload
+
+# コマンド一覧
+make help
 ```
 
 ### 本番環境
@@ -428,11 +435,15 @@ vi .env.production
 #### 2. リバースプロキシの設定・起動
 
 ```bash
+cd reverse-proxy/
+
 # Caddyfileにドメイン名を設定
-vi reverse-proxy/Caddyfile
+vi Caddyfile
 
 # リバースプロキシを起動（web-proxy-netネットワークも自動作成）
-make proxy-up
+make up
+
+cd ..
 ```
 
 #### 3. アプリケーションのデプロイ
@@ -474,9 +485,10 @@ make prod-deploy
 .
 ├── .env.development          # 開発環境用環境変数（コミット済み）
 ├── .env.production           # 本番環境用環境変数テンプレート（コミット済み）
-├── reverse-proxy/            # リバースプロキシ（独立管理）
+├── reverse-proxy/            # リバースプロキシ（独立管理、ディレクトリごとコピーで運用可能）
 │   ├── compose.yaml          # Caddy用 Docker Compose 設定
-│   └── Caddyfile             # Caddy リバースプロキシ設定
+│   ├── Caddyfile             # Caddy リバースプロキシ設定
+│   └── Makefile              # リバースプロキシ操作コマンド
 ├── compose.development.yaml  # 開発環境用 Docker Compose 設定
 ├── compose.production.yaml   # 本番環境用 Docker Compose 設定（app + db）
 ├── Dockerfile.app            # Appコンテナ定義（マルチステージビルド）
