@@ -429,7 +429,7 @@ vi .env.production
 ```
 
 **必須設定項目:**
-- `SECRET_KEY_BASE`: `docker compose -f compose.production.yaml run --rm app bundle exec rails secret` で生成
+- `SECRET_KEY_BASE`: `make prod-secret` で生成
 - `POSTGRES_PASSWORD`: ランダムな強力なパスワードに変更
 
 #### 2. リバースプロキシの設定・起動

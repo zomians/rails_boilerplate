@@ -155,6 +155,10 @@ prod-db-reset: ## 本番環境のデータベースをリセット（注意：�
 	docker compose -f compose.production.yaml --env-file .env.production exec app rails db:reset
 	@echo "✅ データベースをリセットしました"
 
+.PHONY: prod-secret
+prod-secret: ## SECRET_KEY_BASEを生成して表示
+	docker compose -f compose.production.yaml --env-file .env.production run --rm app bundle exec rails secret
+
 .PHONY: prod-ps
 prod-ps: ## 本番環境のコンテナ状態を表示
 	docker compose -f compose.production.yaml --env-file .env.production ps
