@@ -434,16 +434,18 @@ vi .env.production
 
 #### 2. リバースプロキシの設定・起動
 
+リバースプロキシ（Caddy）はプロジェクトとは独立して `/srv/reverse-proxy/` で運用します（[VPS初期セットアップ](docs/vps-setup.md) 参照）。
+
 ```bash
-cd reverse-proxy/
+# reverse-proxy/ を /srv/reverse-proxy/ にコピー
+cp -r reverse-proxy/ /srv/reverse-proxy/
 
 # Caddyfileにドメイン名を設定
-vi Caddyfile
+vi /srv/reverse-proxy/Caddyfile
 
 # リバースプロキシを起動（web-proxy-netネットワークも自動作成）
+cd /srv/reverse-proxy/
 make up
-
-cd ..
 ```
 
 #### 3. アプリケーションのデプロイ
