@@ -18,7 +18,7 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile.app
+      dockerfile: Dockerfile.rails
       target: development
       args:
         RUBY_VERSION: ${RUBY_VERSION}

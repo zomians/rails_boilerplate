@@ -231,7 +231,7 @@ Internet
 - `compose.development.yaml` + `.env.development`: 開発環境（app + db）
 - `compose.production.yaml` + `.env.production`: 本番環境（app + db）
 
-#### 1. app サービス（`Dockerfile.app`）
+#### 1. app サービス（`Dockerfile.rails`）
 
 - Ruby/Rails開発環境
 - カレントディレクトリを `/app` にマウント
@@ -396,7 +396,7 @@ make help  # 全コマンド確認
 | `reverse-proxy/Caddyfile` | Caddy リバースプロキシ設定（SSL自動化） |
 | `compose.production.yaml` | 本番環境用 Docker Compose 設定（app + db） |
 | `.env.production` | 本番環境用環境変数（SECRET_KEY_BASE等を要変更） |
-| `Dockerfile.app` | 本番ステージを含むマルチステージビルド |
+| `Dockerfile.rails` | 本番ステージを含むマルチステージビルド |
 
 ### SSL/TLS（HTTPS）
 
@@ -493,7 +493,7 @@ make prod-deploy
 │   └── Makefile              # リバースプロキシ操作コマンド
 ├── compose.development.yaml  # 開発環境用 Docker Compose 設定
 ├── compose.production.yaml   # 本番環境用 Docker Compose 設定（app + db）
-├── Dockerfile.app            # Appコンテナ定義（マルチステージビルド）
+├── Dockerfile.rails          # Railsコンテナ定義（マルチステージビルド）
 ├── Makefile                  # 開発ショートカット
 ├── CONTRIBUTING.md           # 開発ガイドライン・ワークフロー
 ├── CLAUDE.md                 # Claude Code向けガイド
