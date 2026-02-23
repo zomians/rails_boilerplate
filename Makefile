@@ -2,8 +2,12 @@
 help: ## ヘルプを表示
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
+# ==============================================
+# 初期セットアップ用（実行後はこのセクションを削除してください）
+# ==============================================
+
 .PHONY: init
-init: ## 定番gemを含むRailsアプリケーションを作成（通常開発用）
+init: ## 【削除予定】定番gemを含むRailsアプリケーションを作成（通常開発用）
 	@echo "📦 Railsアプリケーションを作成します..."
 	@[ -f README.md ] && cp README.md README.md.bak || true
 	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app app \
@@ -56,7 +60,7 @@ init: ## 定番gemを含むRailsアプリケーションを作成（通常開発
 	@echo "🎉 セットアップ完了！ 次のコマンド: make up"
 
 .PHONY: init-ec
-init-ec: ## Solidus専用Railsアプリケーションを作成（ECサイト開発用）
+init-ec: ## 【削除予定】Solidus専用Railsアプリケーションを作成（ECサイト開発用）
 	@echo "📦 Solidus専用Railsアプリケーションを作成します..."
 	@[ -f README.md ] && cp README.md README.md.bak || true
 	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app app \
@@ -110,6 +114,10 @@ init-ec: ## Solidus専用Railsアプリケーションを作成（ECサイト開
 	@echo "🎉 Solidusのセットアップ完了！"
 	@echo "次のコマンド: make up"
 	@echo "管理画面: http://localhost:3000/admin (admin@example.com / test123)"
+
+# ==============================================
+# 開発用コマンド
+# ==============================================
 
 .PHONY: up
 up: ## コンテナを起動
