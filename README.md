@@ -180,7 +180,7 @@ make up
 
 ```
 ┌─────────────────────────────────────┐
-│  app (Rails アプリケーション)         │
+│  railsapp (Rails アプリケーション)     │
 │  - ポート: 3000                      │
 │  - ボリューム: カレントディレクトリ    │
 │  - 依存: db サービス                 │
@@ -210,7 +210,7 @@ Internet
 └─────────────────────────────────────┘
               ↓ web-proxy-net（外部ネットワーク）
 ┌─────────────────────────────────────┐
-│  app (Rails アプリケーション)         │
+│  railsapp (Rails アプリケーション)     │
 │  - ポート: 3000（内部のみ）          │
 │  - ネットワーク: internal,           │
 │                  web-proxy-net       │
@@ -228,10 +228,10 @@ Internet
 
 **構成ファイル:**
 - `reverse-proxy/compose.yaml` + `reverse-proxy/Caddyfile`: リバースプロキシ（独立管理）
-- `compose.development.yaml` + `.env.development`: 開発環境（app + db）
-- `compose.production.yaml` + `.env.production`: 本番環境（app + db）
+- `compose.development.yaml` + `.env.development`: 開発環境（railsapp + db）
+- `compose.production.yaml` + `.env.production`: 本番環境（railsapp + db）
 
-#### 1. app サービス（`Dockerfile.rails`）
+#### 1. railsapp サービス（`Dockerfile.rails`）
 
 - Ruby/Rails開発環境
 - カレントディレクトリを `/app` にマウント
@@ -295,14 +295,14 @@ make up
 # コンテナ停止
 make down
 
-# app コンテナに入る
+# railsapp コンテナに入る
 make bash
 
 # サービス状態確認
 docker compose -f compose.development.yaml --env-file .env.development ps
 
 # ログ表示
-docker compose -f compose.development.yaml --env-file .env.development logs app
+docker compose -f compose.development.yaml --env-file .env.development logs railsapp
 docker compose -f compose.development.yaml --env-file .env.development logs db
 
 # 利用可能なコマンド一覧を表示
@@ -372,7 +372,7 @@ make prod-deploy
 # 本番環境のログを表示
 make prod-logs
 
-# 本番環境のappコンテナに入る
+# 本番環境のrailsappコンテナに入る
 make prod-bash
 
 # 本番環境のコンテナ状態を表示

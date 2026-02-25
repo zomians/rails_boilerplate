@@ -10,7 +10,7 @@ help: ## ヘルプを表示
 init: ## 【削除予定】定番gemを含むRailsアプリケーションを作成（通常開発用）
 	@echo "📦 Railsアプリケーションを作成します..."
 	@[ -f README.md ] && cp README.md README.md.bak || true
-	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app app \
+	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app railsapp \
 	rails new . --name railsapp --database=postgresql --css=tailwind --javascript=importmap --skip-test --force
 	@[ -f README.md.bak ] && mv README.md.bak README.md || true
 	@echo "✅ Rails アプリケーションを作成しました"
@@ -22,7 +22,7 @@ init: ## 【削除予定】定番gemを含むRailsアプリケーションを作
 		fi \
 	fi
 	@echo "📦 定番gemを追加します..."
-	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app app \
+	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app railsapp \
 	bash -c "bundle add mini_racer stripe devise kaminari rack-cors && \
 	bundle add pry-rails --group development && \
 	bundle add rspec-rails factory_bot_rails faker --group 'development,test'"
@@ -63,12 +63,12 @@ init: ## 【削除予定】定番gemを含むRailsアプリケーションを作
 init-ec: ## 【削除予定】Solidus専用Railsアプリケーションを作成（ECサイト開発用）
 	@echo "📦 Solidus専用Railsアプリケーションを作成します..."
 	@[ -f README.md ] && cp README.md README.md.bak || true
-	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app app \
+	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app railsapp \
 	rails new . --name railsapp --database=postgresql --javascript=importmap --skip-asset-pipeline --force
 	@[ -f README.md.bak ] && mv README.md.bak README.md || true
 	@echo "✅ Rails アプリケーションを作成しました"
 	@echo "🔧 アセットパイプラインをSprocketsに設定します..."
-	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app app bundle add sprockets-rails
+	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app railsapp bundle add sprockets-rails
 	@echo "✅ sprockets-railsを追加しました"
 	@echo "📄 Sprockets用のmanifest.jsを作成します..."
 	@mkdir -p app/assets/config
@@ -96,9 +96,9 @@ init-ec: ## 【削除予定】Solidus専用Railsアプリケーションを作�
 		> config/initializers/assets.rb
 	@echo "✅ assets.rbを作成しました"
 	@echo "📦 mini_racerを追加します..."
-	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app app bundle add mini_racer
+	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app railsapp bundle add mini_racer
 	@echo "📦 Solidusをセットアップします..."
-	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app app \
+	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app railsapp \
 	bash -c "bundle add solidus && \
 	rails generate solidus:install --auto-accept && \
 	bundle install && \
@@ -130,8 +130,8 @@ down: ## コンテナを停止
 	@echo "✅ コンテナを停止しました"
 
 .PHONY: bash
-bash: ## app コンテナに入る
-	docker compose -f compose.development.yaml --env-file .env.development exec app bash
+bash: ## railsapp コンテナに入る
+	docker compose -f compose.development.yaml --env-file .env.development exec railsapp bash
 
 .PHONY: clean
 clean: ## このプロジェクトのDocker関連をクリーン（公式イメージは保持）
@@ -146,7 +146,7 @@ prod-deploy: ## 本番環境をデプロイ（ビルド→再作成→マイグ�
 	docker compose -f compose.production.yaml --env-file .env.production build --no-cache
 	docker compose -f compose.production.yaml --env-file .env.production down
 	docker compose -f compose.production.yaml --env-file .env.production up -d
-	docker compose -f compose.production.yaml --env-file .env.production exec app rails db:create db:migrate db:seed
+	docker compose -f compose.production.yaml --env-file .env.production exec railsapp rails db:create db:migrate db:seed
 	@echo "✅ デプロイが完了しました"
 
 .PHONY: prod-logs
@@ -154,18 +154,18 @@ prod-logs: ## 本番環境のログを表示
 	docker compose -f compose.production.yaml --env-file .env.production logs -f
 
 .PHONY: prod-bash
-prod-bash: ## 本番環境のappコンテナに入る
-	docker compose -f compose.production.yaml --env-file .env.production exec app bash
+prod-bash: ## 本番環境のrailsappコンテナに入る
+	docker compose -f compose.production.yaml --env-file .env.production exec railsapp bash
 
 .PHONY: prod-db-reset
 prod-db-reset: ## 本番環境のデータベースをリセット（注意：全データ削除）
 	@echo "⚠️  警告: 全てのデータが削除されます。続行しますか? [y/N]" && read ans && [ $${ans:-N} = y ]
-	docker compose -f compose.production.yaml --env-file .env.production exec app rails db:reset
+	docker compose -f compose.production.yaml --env-file .env.production exec railsapp rails db:reset
 	@echo "✅ データベースをリセットしました"
 
 .PHONY: prod-secret
 prod-secret: ## SECRET_KEY_BASEを生成して表示
-	docker compose -f compose.production.yaml --env-file .env.production run --rm app bundle exec rails secret
+	docker compose -f compose.production.yaml --env-file .env.production run --rm railsapp bundle exec rails secret
 
 .PHONY: prod-ps
 prod-ps: ## 本番環境のコンテナ状態を表示

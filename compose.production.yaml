@@ -16,7 +16,7 @@ services:
       - internal
     restart: unless-stopped
 
-  app:
+  railsapp:
     build:
       context: .
       dockerfile: Dockerfile.rails
