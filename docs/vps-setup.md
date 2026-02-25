@@ -85,7 +85,7 @@ vi /srv/reverse-proxy/Caddyfile
 
 ```
 example.com {
-	reverse_proxy app:3000
+	reverse_proxy railsapp:3000
 }
 ```
 
