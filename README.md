@@ -144,11 +144,11 @@ rails db:migrate
 │  railsapp (Rails アプリケーション)     │
 │  - ポート: 3000                      │
 │  - ボリューム: カレントディレクトリ    │
-│  - 依存: db サービス                 │
+│  - 依存: postgresdb サービス         │
 └─────────────────────────────────────┘
               ↓
 ┌─────────────────────────────────────┐
-│  db (PostgreSQL)                    │
+│  postgresdb (PostgreSQL)            │
 │  - ポート: 5432                      │
 │  - ボリューム: postgres_data         │
 │  - ヘルスチェック有効                │
@@ -175,11 +175,11 @@ Internet
 │  - ポート: 3000（内部のみ）          │
 │  - ネットワーク: internal,           │
 │                  web-proxy-net       │
-│  - 依存: db サービス                 │
+│  - 依存: postgresdb サービス         │
 └─────────────────────────────────────┘
               ↓ internal
 ┌─────────────────────────────────────┐
-│  db (PostgreSQL)                    │
+│  postgresdb (PostgreSQL)            │
 │  - ポート: 5432（内部のみ）          │
 │  - ネットワーク: internal            │
 │  - ボリューム: postgres_data         │
@@ -189,8 +189,8 @@ Internet
 
 **構成ファイル:**
 - `reverse-proxy/compose.yaml` + `reverse-proxy/Caddyfile`: リバースプロキシ（独立管理）
-- `compose.development.yaml` + `.env.development`: 開発環境（railsapp + db）
-- `compose.production.yaml` + `.env.production`: 本番環境（railsapp + db）
+- `compose.development.yaml` + `.env.development`: 開発環境（railsapp + postgresdb）
+- `compose.production.yaml` + `.env.production`: 本番環境（railsapp + postgresdb）
 
 #### 1. railsapp サービス（`Dockerfile.rails`）
 
@@ -200,7 +200,7 @@ Internet
 - デフォルトで `bin/dev` を実行（Railsサーバー起動 + アセットビルド）
 - アクセス: http://localhost:3000
 
-#### 2. db サービス
+#### 2. postgresdb サービス
 
 - PostgreSQLデータベース
 - データは `postgres_data` ボリュームに永続化
@@ -265,7 +265,7 @@ docker compose -f compose.development.yaml --env-file .env.development ps
 
 # ログ表示
 docker compose -f compose.development.yaml --env-file .env.development logs railsapp
-docker compose -f compose.development.yaml --env-file .env.development logs db
+docker compose -f compose.development.yaml --env-file .env.development logs postgresdb
 
 # 利用可能なコマンド一覧を表示
 make help
@@ -356,7 +356,7 @@ make help  # 全コマンド確認
 |---------|------|
 | `reverse-proxy/compose.yaml` | リバースプロキシ用 Docker Compose 設定 |
 | `reverse-proxy/Caddyfile` | Caddy リバースプロキシ設定（SSL自動化） |
-| `compose.production.yaml` | 本番環境用 Docker Compose 設定（app + db） |
+| `compose.production.yaml` | 本番環境用 Docker Compose 設定（app + postgresdb） |
 | `.env.production` | 本番環境用環境変数（SECRET_KEY_BASE等を要変更） |
 | `Dockerfile.rails` | 本番ステージを含むマルチステージビルド |
 
@@ -454,7 +454,7 @@ make prod-deploy
 │   ├── Caddyfile             # Caddy リバースプロキシ設定
 │   └── Makefile              # リバースプロキシ操作コマンド
 ├── compose.development.yaml  # 開発環境用 Docker Compose 設定
-├── compose.production.yaml   # 本番環境用 Docker Compose 設定（app + db）
+├── compose.production.yaml   # 本番環境用 Docker Compose 設定（app + postgresdb）
 ├── Dockerfile.rails          # Railsコンテナ定義（マルチステージビルド）
 ├── Makefile                  # 開発ショートカット
 ├── CONTRIBUTING.md           # 開発ガイドライン・ワークフロー
