@@ -22,7 +22,7 @@
 
 ## プロジェクト概要
 
-このプロジェクトは、Dockerを使用したRails開発環境を提供するboilerplateです。通常のRails開発とECサイト開発（Solidus）の両方に対応しています。
+このプロジェクトは、Dockerを使用したRails開発環境を提供するboilerplateです。
 
 ### 特徴
 
