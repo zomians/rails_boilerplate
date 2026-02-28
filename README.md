@@ -100,7 +100,6 @@ make up
 
 **`make init` で追加される定番gem:**
 - `mini_racer`: Node.js不要のV8エンジン
-- `stripe`: 決済処理
 - `devise`: 認証（要手動セットアップ）
 - `kaminari`: ページネーション
 - `rack-cors`: CORS対応
@@ -109,7 +108,6 @@ make up
 - Rails 8にはデフォルトで `rubocop-rails-omakase` が含まれます
 
 **自動生成されるinitializer:**
-- `config/initializers/stripe.rb`: Stripe APIキー設定
 - `config/initializers/cors.rb`: CORS設定（開発環境向けデフォルト）
 
 **Deviseの手動セットアップ:**
@@ -128,11 +126,6 @@ rails db:migrate
 - フラッシュメッセージ (`app/views/layouts/application.html.erb`)
 
 詳細は `rails generate devise:install` 実行時に表示される指示を参照してください。
-
-**Stripeの初期設定:**
-- `config/initializers/stripe.rb` が自動作成されます
-- `.env.development` にサンプルのAPIキーが含まれています
-- 実際に使用する場合は、[Stripe Dashboard](https://dashboard.stripe.com/test/apikeys) から取得したAPIキーに置き換えてください
 
 ---
 

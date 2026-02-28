@@ -23,24 +23,10 @@ init: ## 【削除予定】定番gemを含むRailsアプリケーションを作
 	fi
 	@echo "📦 定番gemを追加します..."
 	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app railsapp \
-	bash -c "bundle add mini_racer stripe devise kaminari rack-cors && \
+	bash -c "bundle add mini_racer devise kaminari rack-cors && \
 	bundle add pry-rails --group development && \
 	bundle add rspec-rails factory_bot_rails faker --group 'development,test'"
 	@echo "✅ 定番gemを追加しました"
-	@echo "📄 Stripe initializerを作成します..."
-	@mkdir -p config/initializers
-	@printf '%s\n' \
-		'# Stripe configuration' \
-		'# API keys are loaded from environment variables' \
-		'' \
-		'Rails.configuration.stripe = {' \
-		"  publishable_key: ENV['STRIPE_PUBLISHABLE_KEY']," \
-		"  secret_key: ENV['STRIPE_SECRET_KEY']" \
-		'}' \
-		'' \
-		'Stripe.api_key = Rails.configuration.stripe[:secret_key]' \
-		> config/initializers/stripe.rb
-	@echo "✅ Stripe initializerを作成しました"
 	@echo "📄 CORS initializerを作成します..."
 	@printf '%s\n' \
 		'# CORS configuration' \
