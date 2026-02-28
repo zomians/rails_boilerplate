@@ -44,7 +44,6 @@
 ### 特徴
 
 - Docker Composeによる開発環境
-- 通常のRails開発とECサイト開発（Solidus）に対応
 - 環境変数ファイルの明示的な管理（`.env.development` / `.env.production`）
 - 本番環境デプロイ対応
 
@@ -59,9 +58,6 @@
 ```bash
 # 通常のRails開発
 make init
-
-# ECサイト開発（Solidus）
-make init-ec
 
 # コンテナ起動
 make up

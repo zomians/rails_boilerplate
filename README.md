@@ -22,7 +22,7 @@
 
 ## プロジェクト概要
 
-このプロジェクトは、Dockerを使用したRails開発環境を提供するboilerplateです。通常のRails開発とECサイト開発（Solidus）の両方に対応しています。
+このプロジェクトは、Dockerを使用したRails開発環境を提供するboilerplateです。
 
 ### 特徴
 
@@ -81,8 +81,6 @@ make up
 
 ### セットアップ手順
 
-このプロジェクトでは、用途に応じて2つの初期化コマンドを用意しています。
-
 #### 通常のRails開発の場合
 
 ```bash
@@ -135,38 +133,6 @@ rails db:migrate
 - `config/initializers/stripe.rb` が自動作成されます
 - `.env.development` にサンプルのAPIキーが含まれています
 - 実際に使用する場合は、[Stripe Dashboard](https://dashboard.stripe.com/test/apikeys) から取得したAPIキーに置き換えてください
-
-#### ECサイト開発（Solidus）の場合
-
-```bash
-# リポジトリをクローン
-git clone https://github.com/zomians/rails_boilerplate.git
-cd rails_boilerplate
-
-# 環境変数の確認・調整
-# .env.development を編集して Ruby/Rails/Postgres バージョンやDB設定を変更できます
-
-# 初回のみ: Solidus専用Railsアプリケーションを作成
-make init-ec
-
-# コンテナ起動
-make up
-
-# 管理画面にアクセス
-# http://localhost:3000/admin
-# ログイン: admin@example.com / test123
-```
-
-**`make init-ec` で行われる処理:**
-- Rails newの実行（`--skip-asset-pipeline` で Propshaft を除外）
-- Sprockets有効化（`sprockets-rails` gemを追加）
-- Sprockets用の `manifest.js` と `assets.rb` を作成
-- `mini_racer`の追加（JavaScript実行エンジン）
-- Solidus gemの追加とインストール
-- データベースマイグレーションとサンプルデータのロード
-- Procfile.devの調整（Docker環境用に `-b 0.0.0.0` を追加）
-
-**重要:** `make init` と `make init-ec` は独立した処理です。どちらか一方のみを実行してください。
 
 ---
 

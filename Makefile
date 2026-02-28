@@ -59,62 +59,6 @@ init: ## 【削除予定】定番gemを含むRailsアプリケーションを作
 	@echo "✅ CORS initializerを作成しました"
 	@echo "🎉 セットアップ完了！ 次のコマンド: make up"
 
-.PHONY: init-ec
-init-ec: ## 【削除予定】Solidus専用Railsアプリケーションを作成（ECサイト開発用）
-	@echo "📦 Solidus専用Railsアプリケーションを作成します..."
-	@[ -f README.md ] && cp README.md README.md.bak || true
-	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app railsapp \
-	rails new . --name railsapp --database=postgresql --javascript=importmap --skip-asset-pipeline --force
-	@[ -f README.md.bak ] && mv README.md.bak README.md || true
-	@echo "✅ Rails アプリケーションを作成しました"
-	@echo "🔧 アセットパイプラインをSprocketsに設定します..."
-	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app railsapp bundle add sprockets-rails
-	@echo "✅ sprockets-railsを追加しました"
-	@echo "📄 Sprockets用のmanifest.jsを作成します..."
-	@mkdir -p app/assets/config
-	@printf '%s\n' \
-		'//= link_tree ../images' \
-		'//= link_directory ../stylesheets .css' \
-		'//= link_directory ../javascripts .js' \
-		> app/assets/config/manifest.js
-	@echo "✅ manifest.jsを作成しました"
-	@echo "📄 assets initializerを作成します..."
-	@mkdir -p config/initializers
-	@printf '%s\n' \
-		'# Be sure to restart your server when you modify this file.' \
-		'' \
-		'# Version of your assets, change this if you want to expire all your assets.' \
-		'Rails.application.config.assets.version = "1.0"' \
-		'' \
-		'# Add additional assets to the asset load path.' \
-		'# Rails.application.config.assets.paths << Emoji.images_path' \
-		'' \
-		'# Precompile additional assets.' \
-		'# application.js, application.css, and all non-JS/CSS in the app/assets' \
-		'# folder are already added.' \
-		'# Rails.application.config.assets.precompile += %w( admin.js admin.css )' \
-		> config/initializers/assets.rb
-	@echo "✅ assets.rbを作成しました"
-	@echo "📦 mini_racerを追加します..."
-	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app railsapp bundle add mini_racer
-	@echo "📦 Solidusをセットアップします..."
-	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app railsapp \
-	bash -c "bundle add solidus && \
-	rails generate solidus:install --auto-accept && \
-	bundle install && \
-	rails db:migrate && \
-	rails db:seed"
-	@echo "⚙️  Procfile.devをDocker環境用に調整します..."
-	@if [ -f Procfile.dev ]; then \
-		if ! grep -q "\-b 0.0.0.0" Procfile.dev; then \
-			perl -i -pe 's/bin\/rails server/bin\/rails server -b 0.0.0.0/' Procfile.dev; \
-			echo "✅ Procfile.dev を Docker 環境用に編集しました"; \
-		fi \
-	fi
-	@echo "🎉 Solidusのセットアップ完了！"
-	@echo "次のコマンド: make up"
-	@echo "管理画面: http://localhost:3000/admin (admin@example.com / test123)"
-
 # ==============================================
 # 開発用コマンド
 # ==============================================
