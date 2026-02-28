@@ -100,6 +100,7 @@ make up
 
 **`make init` で追加される定番gem:**
 - `mini_racer`: Node.js不要のV8エンジン
+- `square.rb`: Square決済
 - `devise`: 認証（要手動セットアップ）
 - `kaminari`: ページネーション
 - `rack-cors`: CORS対応
@@ -108,6 +109,7 @@ make up
 - Rails 8にはデフォルトで `rubocop-rails-omakase` が含まれます
 
 **自動生成されるinitializer:**
+- `config/initializers/square.rb`: Square API設定
 - `config/initializers/cors.rb`: CORS設定（開発環境向けデフォルト）
 
 **Deviseの手動セットアップ:**

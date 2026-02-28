@@ -23,10 +23,25 @@ init: ## 【削除予定】定番gemを含むRailsアプリケーションを作
 	fi
 	@echo "📦 定番gemを追加します..."
 	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app railsapp \
-	bash -c "bundle add mini_racer devise kaminari rack-cors && \
+	bash -c "bundle add mini_racer square.rb devise kaminari rack-cors && \
 	bundle add pry-rails --group development && \
 	bundle add rspec-rails factory_bot_rails faker --group 'development,test'"
 	@echo "✅ 定番gemを追加しました"
+	@echo "📄 Square initializerを作成します..."
+	@mkdir -p config/initializers
+	@printf '%s\n' \
+		'require "square"' \
+		'' \
+		'SQUARE_CLIENT = if ENV["SQUARE_ACCESS_TOKEN"].present?' \
+		'  Square::Client.new(' \
+		'    token: ENV.fetch("SQUARE_ACCESS_TOKEN"),' \
+		'    base_url: ENV.fetch("SQUARE_ENVIRONMENT", "sandbox") == "production" ? Square::Environment::PRODUCTION : Square::Environment::SANDBOX' \
+		'  )' \
+		'end' \
+		'' \
+		'SQUARE_LOCATION_ID = ENV["SQUARE_LOCATION_ID"]' \
+		> config/initializers/square.rb
+	@echo "✅ Square initializerを作成しました"
 	@echo "📄 CORS initializerを作成します..."
 	@printf '%s\n' \
 		'# CORS configuration' \
