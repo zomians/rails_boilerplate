@@ -135,7 +135,9 @@ bash: ## railsapp コンテナに入る
 
 .PHONY: test
 test: ## RSpecテストを実行
-	docker compose -f compose.development.yaml --env-file .env.development exec railsapp bundle exec rspec
+	docker compose -f compose.development.yaml --env-file .env.development exec \
+		-e DATABASE_URL=postgres://postgres:postgres@db:5432/railsapp-test \
+		railsapp bundle exec rspec
 
 .PHONY: clean
 clean: ## このプロジェクトのDocker関連をクリーン（公式イメージは保持）
