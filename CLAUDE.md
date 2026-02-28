@@ -60,9 +60,6 @@
 # 通常のRails開発
 make init
 
-# ECサイト開発（Solidus）
-make init-ec
-
 # コンテナ起動
 make up
 ```
