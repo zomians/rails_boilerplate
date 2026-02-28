@@ -2,9 +2,19 @@
 # check=error=true
 
 # ============================================
+# グローバル ARG - 最初の FROM より前に宣言
+# ============================================
+ARG NODE_VERSION
+ARG RUBY_VERSION
+
+# ============================================
+# Node.js - 公式イメージからバイナリを取得
+# ============================================
+FROM node:${NODE_VERSION:-24}-slim AS node
+
+# ============================================
 # Base ステージ - 最小限のランタイム依存関係
 # ============================================
-ARG RUBY_VERSION
 FROM ruby:${RUBY_VERSION:-3.3.6}-slim AS base
 
 WORKDIR /app
@@ -20,11 +30,17 @@ RUN apt-get update -qq \
     && rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # ============================================
-# Development ステージ - ローカル開発環境用
+# Build-base ステージ - ビルド共通基盤
 # ============================================
-FROM base AS development
+FROM base AS build-base
 
-# ビルドツールと開発ツールをインストール
+# Node.js をコピー（ビルド時のみ必要）
+COPY --from=node /usr/local/bin/node /usr/local/bin/
+COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+    && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
+
+# ビルドツールをインストール
 RUN apt-get update -qq \
     && apt-get install -y --no-install-recommends \
         build-essential \
@@ -32,6 +48,17 @@ RUN apt-get update -qq \
         libpq-dev \
         libyaml-dev \
         pkg-config \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# ============================================
+# Development ステージ - ローカル開発環境用
+# ============================================
+FROM build-base AS development
+
+# 開発用ツールを追加インストール
+RUN apt-get update -qq \
+    && apt-get install -y --no-install-recommends \
         less \
         vim \
     && apt-get clean \
@@ -44,18 +71,7 @@ RUN gem install rails -v ${RAILS_VERSION} --no-document
 # ============================================
 # Production-builder ステージ - アプリケーションビルド用
 # ============================================
-FROM base AS production-builder
-
-# ビルドに必要なパッケージをインストール
-RUN apt-get update -qq \
-    && apt-get install -y --no-install-recommends \
-        build-essential \
-        git \
-        libpq-dev \
-        libyaml-dev \
-        pkg-config \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists /var/cache/apt/archives
+FROM build-base AS production-builder
 
 # Gemfile をコピーして gem をインストール
 COPY Gemfile Gemfile.lock ./

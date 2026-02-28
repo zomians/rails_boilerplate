@@ -23,7 +23,7 @@ init: ## 【削除予定】定番gemを含むRailsアプリケーションを作
 	fi
 	@echo "📦 定番gemを追加します..."
 	docker compose -f compose.development.yaml --env-file .env.development run --rm --workdir /app railsapp \
-	bash -c "bundle add mini_racer square.rb devise kaminari rack-cors && \
+	bash -c "bundle add square.rb devise kaminari rack-cors && \
 	bundle add pry-rails --group development && \
 	bundle add rspec-rails factory_bot_rails faker --group 'development,test'"
 	@echo "✅ 定番gemを追加しました"

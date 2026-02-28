@@ -43,6 +43,7 @@
 | PostgreSQL | 16-bookworm | データベース |
 | Docker | 20.10+ | コンテナ実行環境 |
 | Docker Compose | 2.0+ | 複数コンテナ管理 |
+| Node.js | 24 | JavaScript ランタイム（ビルド時のみ） |
 | Tailwind CSS | - | CSSフレームワーク |
 | Import maps | - | JavaScript管理 |
 
@@ -99,7 +100,6 @@ make up
 ```
 
 **`make init` で追加される定番gem:**
-- `mini_racer`: Node.js不要のV8エンジン
 - `square.rb`: Square決済
 - `devise`: 認証（要手動セットアップ）
 - `kaminari`: ページネーション
@@ -232,6 +232,7 @@ Internet
 **開発環境（.env.development）:**
 - `RUBY_VERSION`: Ruby version (default: 3.3.6)
 - `RAILS_VERSION`: Rails version (default: 8.0.4)
+- `NODE_VERSION`: Node.js version (default: 24)
 - `POSTGRES_VERSION`: PostgreSQL version (default: 16-bookworm)
 - `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: Database credentials
 - `DATABASE_URL`: PostgreSQL connection URL (auto-generated)
