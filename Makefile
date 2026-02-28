@@ -133,6 +133,10 @@ down: ## コンテナを停止
 bash: ## railsapp コンテナに入る
 	docker compose -f compose.development.yaml --env-file .env.development exec railsapp bash
 
+.PHONY: test
+test: ## RSpecテストを実行
+	docker compose -f compose.development.yaml --env-file .env.development exec railsapp bundle exec rspec
+
 .PHONY: clean
 clean: ## このプロジェクトのDocker関連をクリーン（公式イメージは保持）
 	docker compose -f compose.development.yaml --env-file .env.development down -v --rmi local
