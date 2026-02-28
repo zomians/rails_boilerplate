@@ -1,5 +1,5 @@
 services:
-  db:
+  postgresdb:
     image: postgres:${POSTGRES_VERSION}
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
@@ -33,7 +33,7 @@ services:
     env_file:
       - .env.development
     depends_on:
-      db:
+      postgresdb:
         condition: service_healthy
     stdin_open: true
     tty: true
