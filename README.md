@@ -38,9 +38,9 @@
 
 | 技術 | バージョン | 用途 |
 |-----|----------|------|
-| Ruby | 3.3.6 | プログラミング言語 |
-| Rails | 8.0.4 | Webフレームワーク |
-| PostgreSQL | 16-bookworm | データベース |
+| Ruby | 3.4.8 | プログラミング言語 |
+| Rails | 8.1.2 | Webフレームワーク |
+| PostgreSQL | 17-bookworm | データベース |
 | Docker | 20.10+ | コンテナ実行環境 |
 | Docker Compose | 2.0+ | 複数コンテナ管理 |
 | Node.js | 24 | JavaScript ランタイム（ビルド時のみ） |
@@ -230,10 +230,10 @@ Internet
 #### 環境変数一覧
 
 **開発環境（.env.development）:**
-- `RUBY_VERSION`: Ruby version (default: 3.3.6)
-- `RAILS_VERSION`: Rails version (default: 8.0.4)
+- `RUBY_VERSION`: Ruby version (default: 3.4.8)
+- `RAILS_VERSION`: Rails version (default: 8.1.2)
 - `NODE_VERSION`: Node.js version (default: 24)
-- `POSTGRES_VERSION`: PostgreSQL version (default: 16-bookworm)
+- `POSTGRES_VERSION`: PostgreSQL version (default: 17-bookworm)
 - `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: Database credentials
 - `DATABASE_URL`: PostgreSQL connection URL (auto-generated)
 

@@ -35,9 +35,9 @@
 
 ### 主要技術
 
-- **Ruby**: 3.3.6
-- **Rails**: 8.0.4
-- **PostgreSQL**: 16-bookworm
+- **Ruby**: 3.4.8
+- **Rails**: 8.1.2
+- **PostgreSQL**: 17-bookworm
 - **Docker & Docker Compose**
 - **Tailwind CSS**、**Import maps**
 

@@ -15,7 +15,7 @@ FROM node:${NODE_VERSION:-24}-slim AS node
 # ============================================
 # Base ステージ - 最小限のランタイム依存関係
 # ============================================
-FROM ruby:${RUBY_VERSION:-3.3.6}-slim AS base
+FROM ruby:${RUBY_VERSION:-3.4.8}-slim AS base
 
 WORKDIR /app
 
