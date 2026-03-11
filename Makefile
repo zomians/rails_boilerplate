@@ -1,3 +1,6 @@
+SHELL := /bin/bash
+.SHELLFLAGS := -o pipefail -c
+
 .PHONY: help
 help: ## ヘルプを表示
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
@@ -136,7 +139,14 @@ prod-backup: ## 本番DBのバックアップを作成（BACKUP_RETENTION_DAYS=7
 	@mkdir -p $(BACKUP_DIR)
 	@FILENAME=$(BACKUP_DIR)/$$(date +%Y%m%d_%H%M%S).sql.gz; \
 	$(PROD_COMPOSE) exec -T postgresdb \
-		bash -c 'pg_dump --clean --if-exists -U $$POSTGRES_USER $$POSTGRES_DB' | gzip > "$$FILENAME" && \
+		bash -c 'pg_dump --clean --if-exists -U $$POSTGRES_USER $$POSTGRES_DB' | gzip > "$$FILENAME"; \
+	RESULT=$$?; \
+	FILESIZE=$$(wc -c < "$$FILENAME" 2>/dev/null | tr -d ' '); \
+	if [ "$$RESULT" -ne 0 ] || [ "$${FILESIZE:-0}" -lt 100 ]; then \
+		echo "❌ バックアップに失敗しました（終了コード: $$RESULT, ファイルサイズ: $${FILESIZE:-0}B）"; \
+		rm -f "$$FILENAME"; \
+		exit 1; \
+	fi; \
 	echo "✅ バックアップを作成しました: $$FILENAME ($$(du -h "$$FILENAME" | cut -f1))"
 	@find $(BACKUP_DIR) -name "*.sql.gz" -mtime +$(BACKUP_RETENTION_DAYS) -delete 2>/dev/null; \
 	echo "🗑️  $(BACKUP_RETENTION_DAYS)日以上前のバックアップを削除しました"
@@ -168,7 +178,7 @@ prod-backup-restore: ## バックアップからリストア（FILE=backups/YYYY
 .PHONY: prod-backup-cron
 prod-backup-cron: ## pg_dumpのcronジョブを設定（デフォルト: 毎日2:00、7日間保持）
 	@mkdir -p $(BACKUP_DIR)
-	@CRON_CMD="$(BACKUP_CRON_SCHEDULE) cd $(CURDIR) && make prod-backup >> $(CURDIR)/$(BACKUP_DIR)/cron.log 2>&1"; \
+	@CRON_CMD="$(BACKUP_CRON_SCHEDULE) PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin; cd $(CURDIR) && make prod-backup >> $(CURDIR)/$(BACKUP_DIR)/cron.log 2>&1"; \
 	(crontab -l 2>/dev/null | grep -v "make prod-backup"; echo "$$CRON_CMD") | crontab -
 	@echo "✅ cronジョブを設定しました"
 	@echo "   スケジュール: $(BACKUP_CRON_SCHEDULE)"
