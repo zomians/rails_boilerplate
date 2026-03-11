@@ -136,7 +136,7 @@ prod-backup: ## 本番DBのバックアップを作成（BACKUP_RETENTION_DAYS=7
 	@mkdir -p $(BACKUP_DIR)
 	@FILENAME=$(BACKUP_DIR)/$$(date +%Y%m%d_%H%M%S).sql.gz; \
 	$(PROD_COMPOSE) exec -T postgresdb \
-		pg_dump --clean --if-exists -U "$$POSTGRES_USER" "$$POSTGRES_DB" | gzip > "$$FILENAME" && \
+		bash -c 'pg_dump --clean --if-exists -U $$POSTGRES_USER $$POSTGRES_DB' | gzip > "$$FILENAME" && \
 	echo "✅ バックアップを作成しました: $$FILENAME ($$(du -h "$$FILENAME" | cut -f1))"
 	@find $(BACKUP_DIR) -name "*.sql.gz" -mtime +$(BACKUP_RETENTION_DAYS) -delete 2>/dev/null; \
 	echo "🗑️  $(BACKUP_RETENTION_DAYS)日以上前のバックアップを削除しました"
