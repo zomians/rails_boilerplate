@@ -121,3 +121,70 @@ prod-secret: ## SECRET_KEY_BASEを生成して表示
 .PHONY: prod-ps
 prod-ps: ## 本番環境のコンテナ状態を表示
 	docker compose -f compose.production.yaml --env-file .env.production ps
+
+# ==============================================
+# バックアップ用コマンド（本番環境）
+# ==============================================
+
+BACKUP_DIR := backups
+BACKUP_RETENTION_DAYS ?= 7
+BACKUP_CRON_SCHEDULE ?= 0 2 * * *
+PROD_COMPOSE := docker compose -f compose.production.yaml --env-file .env.production
+
+.PHONY: prod-backup
+prod-backup: ## 本番DBのバックアップを作成（BACKUP_RETENTION_DAYS=7で世代管理）
+	@mkdir -p $(BACKUP_DIR)
+	@FILENAME=$(BACKUP_DIR)/$$(date +%Y%m%d_%H%M%S).sql.gz; \
+	$(PROD_COMPOSE) exec -T postgresdb \
+		pg_dump --clean --if-exists -U "$$POSTGRES_USER" "$$POSTGRES_DB" | gzip > "$$FILENAME" && \
+	echo "✅ バックアップを作成しました: $$FILENAME ($$(du -h "$$FILENAME" | cut -f1))"
+	@find $(BACKUP_DIR) -name "*.sql.gz" -mtime +$(BACKUP_RETENTION_DAYS) -delete 2>/dev/null; \
+	echo "🗑️  $(BACKUP_RETENTION_DAYS)日以上前のバックアップを削除しました"
+
+.PHONY: prod-backup-list
+prod-backup-list: ## バックアップ一覧を表示
+	@if [ -d $(BACKUP_DIR) ] && ls $(BACKUP_DIR)/*.sql.gz 1>/dev/null 2>&1; then \
+		echo "📋 バックアップ一覧:"; \
+		ls -lh $(BACKUP_DIR)/*.sql.gz; \
+	else \
+		echo "バックアップがありません"; \
+	fi
+
+.PHONY: prod-backup-restore
+prod-backup-restore: ## バックアップからリストア（FILE=backups/YYYYMMDD_HHMMSS.sql.gz）
+	@if [ -z "$(FILE)" ]; then \
+		echo "❌ FILEを指定してください: make prod-backup-restore FILE=backups/YYYYMMDD_HHMMSS.sql.gz"; \
+		exit 1; \
+	fi
+	@if [ ! -f "$(FILE)" ]; then \
+		echo "❌ ファイルが見つかりません: $(FILE)"; \
+		exit 1; \
+	fi
+	@echo "⚠️  警告: データベースを $(FILE) から復元します。既存のデータは上書きされます。続行しますか? [y/N]" && read ans && [ $${ans:-N} = y ]
+	gunzip -c $(FILE) | $(PROD_COMPOSE) exec -T postgresdb \
+		bash -c 'psql -U $$POSTGRES_USER $$POSTGRES_DB'
+	@echo "✅ リストアが完了しました: $(FILE)"
+
+.PHONY: prod-backup-cron
+prod-backup-cron: ## pg_dumpのcronジョブを設定（デフォルト: 毎日2:00、7日間保持）
+	@mkdir -p $(BACKUP_DIR)
+	@CRON_CMD="$(BACKUP_CRON_SCHEDULE) cd $(CURDIR) && make prod-backup >> $(CURDIR)/$(BACKUP_DIR)/cron.log 2>&1"; \
+	(crontab -l 2>/dev/null | grep -v "make prod-backup"; echo "$$CRON_CMD") | crontab -
+	@echo "✅ cronジョブを設定しました"
+	@echo "   スケジュール: $(BACKUP_CRON_SCHEDULE)"
+	@echo "   保持日数: $(BACKUP_RETENTION_DAYS)日"
+	@echo "   ログ: $(CURDIR)/$(BACKUP_DIR)/cron.log"
+	@crontab -l | grep "prod-backup"
+
+.PHONY: prod-backup-cron-remove
+prod-backup-cron-remove: ## pg_dumpのcronジョブを削除
+	@(crontab -l 2>/dev/null | grep -v "make prod-backup") | crontab -
+	@echo "✅ cronジョブを削除しました"
+
+.PHONY: prod-backup-cron-status
+prod-backup-cron-status: ## cronジョブの状態を表示
+	@echo "📋 現在のcronジョブ:"
+	@crontab -l 2>/dev/null | grep "prod-backup" || echo "   設定されていません"
+	@echo ""
+	@echo "📋 最新のcronログ:"
+	@if [ -f $(BACKUP_DIR)/cron.log ]; then tail -5 $(BACKUP_DIR)/cron.log; else echo "   ログがありません"; fi

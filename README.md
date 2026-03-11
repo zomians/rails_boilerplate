@@ -344,6 +344,38 @@ make prod-ps
 make help  # 全コマンド確認
 ```
 
+### バックアップ
+
+```bash
+# バックアップを即時作成（gzip圧縮、7日以上の古いファイルを自動削除）
+make prod-backup
+
+# バックアップ一覧を表示
+make prod-backup-list
+
+# バックアップからリストア
+make prod-backup-restore FILE=backups/20260311_020000.sql.gz
+
+# cronジョブを設定（デフォルト: 毎日2:00）
+make prod-backup-cron
+
+# cronジョブを削除
+make prod-backup-cron-remove
+
+# cronジョブの状態とログを表示
+make prod-backup-cron-status
+```
+
+**設定変更:**
+
+```bash
+# 保持日数を変更（デフォルト: 7日）
+make prod-backup BACKUP_RETENTION_DAYS=30
+
+# cronスケジュールを変更（例: 毎日3:00）
+make prod-backup-cron BACKUP_CRON_SCHEDULE="0 3 * * *"
+```
+
 ---
 
 ## 本番環境デプロイ
@@ -423,7 +455,14 @@ make prod-deploy
 4. コンテナを起動
 5. データベースのセットアップ（`db:create db:migrate db:seed`）
 
-#### 4. 確認
+#### 4. バックアップの設定
+
+```bash
+# 定期バックアップを設定（毎日2:00、7日間保持）
+make prod-backup-cron
+```
+
+#### 5. 確認
 
 アプリケーション: `https://yourdomain.com`
 
