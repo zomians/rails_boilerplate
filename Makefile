@@ -163,7 +163,6 @@ prod-ps: ## 本番環境のコンテナ状態を表示
 # バックアップ用コマンド
 # ==============================================
 
-PROD_COMPOSE := docker compose -f compose.production.yaml --env-file .env.production
 BACKUP_DIR := backups
 BACKUP_RETENTION_DAYS ?= 7
 BACKUP_CRON_SCHEDULE ?= 0 2 * * *
@@ -174,7 +173,7 @@ BACKUP_POSTGRES_DB := $(shell grep '^POSTGRES_DB=' .env.production 2>/dev/null |
 prod-backup: ## 本番DBをバックアップ（即時実行）
 	@mkdir -p $(BACKUP_DIR)
 	@FILE=$(BACKUP_DIR)/$$(date +%Y%m%d_%H%M%S).sql.gz; \
-	$(PROD_COMPOSE) exec -T db pg_dump --clean --if-exists -U $(BACKUP_POSTGRES_USER) $(BACKUP_POSTGRES_DB) | gzip > $$FILE && \
+	docker compose -f compose.production.yaml --env-file .env.production exec -T db pg_dump --clean --if-exists -U $(BACKUP_POSTGRES_USER) $(BACKUP_POSTGRES_DB) | gzip > $$FILE && \
 	echo "✅ バックアップを作成しました: $$FILE" || { echo "❌ バックアップに失敗しました"; rm -f $$FILE; exit 1; }
 	@find $(BACKUP_DIR) -name "*.sql.gz" -mtime +$(BACKUP_RETENTION_DAYS) -delete && \
 	echo "🗑️  $(BACKUP_RETENTION_DAYS)日以上前のバックアップを削除しました"
@@ -188,7 +187,7 @@ prod-backup-restore: ## 指定ファイルからDBをリストア（例: make pr
 	@test -n "$(FILE)" || { echo "エラー: FILE=<バックアップファイルパス> を指定してください"; exit 1; }
 	@test -f "$(FILE)" || { echo "エラー: ファイルが見つかりません: $(FILE)"; exit 1; }
 	@echo "⚠️  警告: $(FILE) からリストアします。現在のデータが上書きされます。続行しますか? [y/N]" && read ans && [ $${ans:-N} = y ]
-	@gunzip -c $(FILE) | $(PROD_COMPOSE) exec -T db psql -U $(BACKUP_POSTGRES_USER) $(BACKUP_POSTGRES_DB)
+	@gunzip -c $(FILE) | docker compose -f compose.production.yaml --env-file .env.production exec -T db psql -U $(BACKUP_POSTGRES_USER) $(BACKUP_POSTGRES_DB)
 	@echo "✅ リストアが完了しました"
 
 .PHONY: prod-backup-cron
