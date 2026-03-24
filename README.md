@@ -549,6 +549,58 @@ docker compose -f compose.development.yaml --env-file .env.development exec app 
 
 ---
 
+## バックアップ運用
+
+### 即時バックアップ
+
+```bash
+make prod-backup
+# → backups/YYYYMMDD_HHMMSS.sql.gz に保存
+# → 7日以上前のバックアップを自動削除（デフォルト）
+```
+
+保持日数を変更する場合:
+
+```bash
+make prod-backup BACKUP_RETENTION_DAYS=14
+```
+
+### バックアップ一覧
+
+```bash
+make prod-backup-list
+```
+
+### リストア
+
+```bash
+make prod-backup-restore FILE=backups/20240101_020000.sql.gz
+```
+
+実行前に確認プロンプトが表示されます。
+
+### cronによる自動バックアップ
+
+```bash
+# 登録（デフォルト: 毎日2:00）
+make prod-backup-cron
+
+# スケジュール変更（例: 毎日3:30）
+make prod-backup-cron BACKUP_CRON_SCHEDULE="30 3 * * *"
+
+# 状態確認
+make prod-backup-cron-status
+
+# 削除
+make prod-backup-cron-remove
+```
+
+ログは `/var/log/backup.log` に記録されます。
+
+> **Note**: `backups/` ディレクトリは `.gitignore` に追加してください。
+
+---
+
 ## ライセンス
 
 このプロジェクトはMITライセンスの下で公開されています。

@@ -121,3 +121,53 @@ prod-secret: ## SECRET_KEY_BASEを生成して表示
 .PHONY: prod-ps
 prod-ps: ## 本番環境のコンテナ状態を表示
 	docker compose -f compose.production.yaml --env-file .env.production ps
+
+# ==============================================
+# バックアップ用コマンド
+# ==============================================
+
+BACKUP_DIR := backups
+BACKUP_RETENTION_DAYS ?= 7
+BACKUP_CRON_SCHEDULE ?= 0 2 * * *
+BACKUP_POSTGRES_USER := $(shell grep '^POSTGRES_USER=' .env.production 2>/dev/null | cut -d= -f2)
+BACKUP_POSTGRES_DB := $(shell grep '^POSTGRES_DB=' .env.production 2>/dev/null | cut -d= -f2)
+
+.PHONY: prod-backup
+prod-backup: ## 本番DBをバックアップ（即時実行）
+	@mkdir -p $(BACKUP_DIR)
+	@FILE=$(BACKUP_DIR)/$$(date +%Y%m%d_%H%M%S).sql.gz; \
+	docker compose -f compose.production.yaml --env-file .env.production exec -T db pg_dump --clean --if-exists -U $(BACKUP_POSTGRES_USER) $(BACKUP_POSTGRES_DB) | gzip > $$FILE && \
+	echo "✅ バックアップを作成しました: $$FILE" || { echo "❌ バックアップに失敗しました"; rm -f $$FILE; exit 1; }
+	@find $(BACKUP_DIR) -name "*.sql.gz" -mtime +$(BACKUP_RETENTION_DAYS) -delete && \
+	echo "🗑️  $(BACKUP_RETENTION_DAYS)日以上前のバックアップを削除しました"
+
+.PHONY: prod-backup-list
+prod-backup-list: ## バックアップ一覧をサイズ付きで表示
+	@ls -lh $(BACKUP_DIR)/*.sql.gz 2>/dev/null || echo "バックアップファイルがありません"
+
+.PHONY: prod-backup-restore
+prod-backup-restore: ## 指定ファイルからDBをリストア（例: make prod-backup-restore FILE=backups/20240101_020000.sql.gz）
+	@test -n "$(FILE)" || { echo "エラー: FILE=<バックアップファイルパス> を指定してください"; exit 1; }
+	@test -f "$(FILE)" || { echo "エラー: ファイルが見つかりません: $(FILE)"; exit 1; }
+	@echo "⚠️  警告: $(FILE) からリストアします。現在のデータが上書きされます。続行しますか? [y/N]" && read ans && [ $${ans:-N} = y ]
+	@gunzip -c $(FILE) | docker compose -f compose.production.yaml --env-file .env.production exec -T db psql -U $(BACKUP_POSTGRES_USER) $(BACKUP_POSTGRES_DB)
+	@echo "✅ リストアが完了しました"
+
+.PHONY: prod-backup-cron
+prod-backup-cron: ## cronにバックアップジョブを登録（デフォルト: 毎日2時）
+	@CRON_CMD="$(BACKUP_CRON_SCHEDULE) cd $$(pwd) && make prod-backup >> logs/backup.log 2>&1"; \
+	( crontab -l 2>/dev/null | grep -v "make prod-backup"; echo "$$CRON_CMD" ) | crontab -
+	@echo "✅ cronジョブを登録しました: $(BACKUP_CRON_SCHEDULE)"
+
+.PHONY: prod-backup-cron-remove
+prod-backup-cron-remove: ## cronからバックアップジョブを削除
+	@crontab -l 2>/dev/null | grep -v "make prod-backup" | crontab -
+	@echo "✅ cronジョブを削除しました"
+
+.PHONY: prod-backup-cron-status
+prod-backup-cron-status: ## cronジョブの状態と最新ログを表示
+	@echo "=== 登録済みcronジョブ ==="
+	@crontab -l 2>/dev/null | grep "make prod-backup" || echo "バックアップcronジョブは登録されていません"
+	@echo ""
+	@echo "=== 最新のcronログ (直近20行) ==="
+	@tail -n 20 logs/backup.log 2>/dev/null || echo "ログファイルがありません"
