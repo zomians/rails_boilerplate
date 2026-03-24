@@ -10,8 +10,7 @@
 
 - [プロジェクト概要](#プロジェクト概要)
 - [技術スタック](#技術スタック)
-- [クイックスタート](#クイックスタート)
-- [開発環境セットアップ](#開発環境セットアップ)
+- [セットアップ](#セットアップ)
 - [アーキテクチャ](#アーキテクチャ)
 - [よく使うコマンド](#よく使うコマンド)
 - [本番環境デプロイ](#本番環境デプロイ)
@@ -51,14 +50,15 @@
 
 ---
 
-## クイックスタート
+## セットアップ
+
+Docker、Docker Compose、Git が必要です（Make は任意）。
 
 ```bash
-# リポジトリをクローン
 git clone https://github.com/zomians/rails_boilerplate.git
 cd rails_boilerplate
 
-# Rails アプリケーションを作成（初回のみ）
+# 初回のみ: Railsアプリケーションを作成
 make init
 
 # コンテナを起動
@@ -67,39 +67,10 @@ make up
 
 アプリケーション: http://localhost:3000
 
----
+バージョンを変更したい場合は `.env.development` を編集してください。
 
-## 開発環境セットアップ
+### `make init` で追加される定番gem
 
-### 必要なツール
-
-| ツール | 必須/任意 | 推奨バージョン | 用途 |
-|--------|----------|--------------|------|
-| Docker | 必須 | 20.10+ | コンテナ実行環境 |
-| Docker Compose | 必須 | 2.0+ | 複数コンテナの管理 |
-| Git | 必須 | 2.30+ | バージョン管理 |
-| Make | 任意 | - | コマンド簡略化 |
-
-### セットアップ手順
-
-#### 通常のRails開発の場合
-
-```bash
-# リポジトリをクローン
-git clone https://github.com/zomians/rails_boilerplate.git
-cd rails_boilerplate
-
-# 環境変数の確認・調整
-# .env.development を編集して Ruby/Rails/Postgres バージョンやDB設定を変更できます
-
-# 初回のみ: 定番gemを含むRailsアプリケーションを作成
-make init
-
-# コンテナ起動
-make up
-```
-
-**`make init` で追加される定番gem:**
 - `square.rb`: Square決済
 - `devise`: 認証（要手動セットアップ）
 - `kaminari`: ページネーション
@@ -108,26 +79,19 @@ make up
 - `rspec-rails`, `factory_bot_rails`, `faker`: テスト関連（development, test）
 - Rails 8にはデフォルトで `rubocop-rails-omakase` が含まれます
 
-**自動生成されるinitializer:**
-- `config/initializers/square.rb`: Square API設定
-- `config/initializers/cors.rb`: CORS設定（開発環境向けデフォルト）
+自動生成されるinitializer: `config/initializers/square.rb`（Square API設定）、`config/initializers/cors.rb`（CORS設定）
 
-**Deviseの手動セットアップ:**
+### Deviseの手動セットアップ
 
-Devise gemはインストール済みですが、使用する場合は以下の手順でセットアップしてください：
+Devise gemはインストール済みですが、使用する場合はコンテナ内で以下を実行してください：
 
 ```bash
-# コンテナ内で実行
 rails generate devise:install
 rails generate devise User
 rails db:migrate
 ```
 
-セットアップ後、以下の設定を追加してください：
-- ルートパス (`config/routes.rb`)
-- フラッシュメッセージ (`app/views/layouts/application.html.erb`)
-
-詳細は `rails generate devise:install` 実行時に表示される指示を参照してください。
+詳細は `rails generate devise:install` 実行時の指示を参照してください。
 
 ---
 
@@ -135,77 +99,22 @@ rails db:migrate
 
 ### Docker構成
 
-このプロジェクトは**マルチコンテナDocker構成**を採用しています。
-
-#### 開発環境サービス構成
-
+**開発環境:**
 ```
-┌─────────────────────────────────────┐
-│  railsapp (Rails アプリケーション)     │
-│  - ポート: 3000                      │
-│  - ボリューム: カレントディレクトリ    │
-│  - 依存: postgresdb サービス         │
-└─────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────┐
-│  postgresdb (PostgreSQL)            │
-│  - ポート: 5432                      │
-│  - ボリューム: postgres_data         │
-│  - ヘルスチェック有効                │
-└─────────────────────────────────────┘
+railsapp (:3000) → postgresdb (:5432)
 ```
 
-#### 本番環境サービス構成
-
-リバースプロキシはアプリケーションから独立した構成です。外部ネットワーク `web-proxy-net` を介して接続します。
-
+**本番環境（リバースプロキシ独立構成）:**
 ```
-Internet
-    ↓
-┌─────────────────────────────────────┐
-│  caddy (reverse-proxy/)             │  ← 独立管理
-│  - ポート: 80/443                    │
-│  - SSL自動（Let's Encrypt）          │
-│  - HTTP→HTTPSリダイレクト自動        │
-│  - ネットワーク: web-proxy-net       │
-└─────────────────────────────────────┘
-              ↓ web-proxy-net（外部ネットワーク）
-┌─────────────────────────────────────┐
-│  railsapp (Rails アプリケーション)     │
-│  - ポート: 3000（内部のみ）          │
-│  - ネットワーク: internal,           │
-│                  web-proxy-net       │
-│  - 依存: postgresdb サービス         │
-└─────────────────────────────────────┘
-              ↓ internal
-┌─────────────────────────────────────┐
-│  postgresdb (PostgreSQL)            │
-│  - ポート: 5432（内部のみ）          │
-│  - ネットワーク: internal            │
-│  - ボリューム: postgres_data         │
-│  - ヘルスチェック有効                │
-└─────────────────────────────────────┘
+caddy (:80/:443) →[web-proxy-net]→ railsapp (:3000) →[internal]→ postgresdb (:5432)
 ```
+
+Caddyは `reverse-proxy/` で独立管理。SSL（Let's Encrypt）・HTTPSリダイレクト・HTTP/3は自動。
 
 **構成ファイル:**
 - `reverse-proxy/compose.yaml` + `reverse-proxy/Caddyfile`: リバースプロキシ（独立管理）
-- `compose.development.yaml` + `.env.development`: 開発環境（railsapp + postgresdb）
-- `compose.production.yaml` + `.env.production`: 本番環境（railsapp + postgresdb）
-
-#### 1. railsapp サービス（`Dockerfile.rails`）
-
-- Ruby/Rails開発環境
-- カレントディレクトリを `/app` にマウント
-- `bundle_cache` ボリュームでgemを永続化
-- デフォルトで `bin/dev` を実行（Railsサーバー起動 + アセットビルド）
-- アクセス: http://localhost:3000
-
-#### 2. postgresdb サービス
-
-- PostgreSQLデータベース
-- データは `postgres_data` ボリュームに永続化
-- アクセス: localhost:5432
-- ヘルスチェックでアプリ起動前にDB準備完了を確認
+- `compose.development.yaml` + `.env.development`: 開発環境
+- `compose.production.yaml` + `.env.production`: 本番環境
 
 ### 環境変数管理
 
