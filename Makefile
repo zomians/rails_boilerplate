@@ -192,7 +192,7 @@ prod-backup-restore: ## 指定ファイルからDBをリストア（例: make pr
 
 .PHONY: prod-backup-cron
 prod-backup-cron: ## cronにバックアップジョブを登録（デフォルト: 毎日2時）
-	@CRON_CMD="$(BACKUP_CRON_SCHEDULE) cd $$(pwd) && make prod-backup >> /var/log/backup.log 2>&1"; \
+	@CRON_CMD="$(BACKUP_CRON_SCHEDULE) cd $$(pwd) && make prod-backup >> logs/backup.log 2>&1"; \
 	( crontab -l 2>/dev/null | grep -v "make prod-backup"; echo "$$CRON_CMD" ) | crontab -
 	@echo "✅ cronジョブを登録しました: $(BACKUP_CRON_SCHEDULE)"
 
@@ -207,4 +207,4 @@ prod-backup-cron-status: ## cronジョブの状態と最新ログを表示
 	@crontab -l 2>/dev/null | grep "make prod-backup" || echo "バックアップcronジョブは登録されていません"
 	@echo ""
 	@echo "=== 最新のcronログ (直近20行) ==="
-	@tail -n 20 /var/log/backup.log 2>/dev/null || echo "ログファイルがありません"
+	@tail -n 20 logs/backup.log 2>/dev/null || echo "ログファイルがありません"
